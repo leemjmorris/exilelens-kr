@@ -77,7 +77,9 @@ describe('static safety guardrails', () => {
     expect(mainSource).toContain('win.setSkipTaskbar(true)');
     expect(mainSource).toContain('savePanelBounds()');
     expect(mainSource).toContain("ipcMain.handle('overlay:resize-by'");
+    expect(mainSource).toContain("ipcMain.handle('overlay:move-by'");
     expect(mainSource).toContain('resizeWindowBy(getSenderWindow(event)');
+    expect(mainSource).toContain('moveWindowBy(getSenderWindow(event)');
     expect(windowSource).toContain('show: false');
     expect(windowSource).toContain('skipTaskbar: true');
     expect(windowSource).toContain('resizable: true');
@@ -89,6 +91,9 @@ describe('static safety guardrails', () => {
     expect(appSource).toContain('aria-label="시세 창 닫기"');
     expect(appSource).toContain('QuestResizeGrip');
     expect(appSource).toContain('resizeOverlayBy');
+    expect(appSource).toContain('moveOverlayBy');
+    expect(appSource).toContain('startHudMove');
+    expect(appSource).toContain("target.closest('button, input, select, textarea, a, .objective, .quest-resize-grip");
     expect(appSource).toContain('aria-label="퀘스트 창 크기 조절"');
     expect(appSource).toContain('quest-hud-shell');
     expect(appSource).toContain('QuestHudPanel');
@@ -97,6 +102,7 @@ describe('static safety guardrails', () => {
     expect(appSource).toContain('hud-drag-strip');
     expect(cssSource).toContain('.quest-hud-shell');
     expect(cssSource).toContain('.quest-hud-widget');
+    expect(cssSource).toContain('cursor: move');
     expect(cssSource).toContain('.hud-drag-strip');
     expect(cssSource).toContain('-webkit-app-region: drag');
     expect(cssSource).toContain('-webkit-app-region: no-drag');

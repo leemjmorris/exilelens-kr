@@ -251,9 +251,43 @@ function App(): React.ReactElement {
     }
   }
 
+  function startHudMove(event: React.PointerEvent<HTMLElement>): void {
+    if (event.button !== 0) return;
+    const target = event.target;
+    if (!(target instanceof Element)) return;
+    if (target.closest('button, input, select, textarea, a, .objective, .quest-resize-grip, [data-no-hud-drag="true"]') != null) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    let previous = { x: event.screenX, y: event.screenY };
+    void window.exileLens?.setOverlayClickThrough?.(false);
+
+    function finishMove(): void {
+      void window.exileLens?.setOverlayClickThrough?.(true);
+      window.removeEventListener('pointermove', handleMove);
+      window.removeEventListener('pointerup', finishMove);
+      window.removeEventListener('pointercancel', finishMove);
+    }
+
+    function handleMove(moveEvent: PointerEvent): void {
+      const deltaX = moveEvent.screenX - previous.x;
+      const deltaY = moveEvent.screenY - previous.y;
+      previous = { x: moveEvent.screenX, y: moveEvent.screenY };
+      void window.exileLens?.moveOverlayBy?.(deltaX, deltaY);
+    }
+
+    window.addEventListener('pointermove', handleMove);
+    window.addEventListener('pointerup', finishMove);
+    window.addEventListener('pointercancel', finishMove);
+  }
+
   if (isQuestHudPanel(panel)) {
     return (
-      <main className={`quest-hud-shell quest-hud-shell-${panel}`} data-overlay-interactive="true">
+      <main
+        className={`quest-hud-shell quest-hud-shell-${panel}`}
+        data-overlay-interactive="true"
+        onPointerDown={startHudMove}
+      >
         <QuestHudPanel
           panel={panel}
           currentArea={currentArea}

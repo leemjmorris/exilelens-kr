@@ -152,6 +152,13 @@ function resizeWindowBy(win: BrowserWindow | null, deltaX: number, deltaY: numbe
   schedulePanelBoundsSave();
 }
 
+function moveWindowBy(win: BrowserWindow | null, deltaX: number, deltaY: number): void {
+  if (win == null || win.isDestroyed()) return;
+  const bounds = win.getBounds();
+  win.setBounds({ ...bounds, x: Math.round(bounds.x + deltaX), y: Math.round(bounds.y + deltaY) });
+  schedulePanelBoundsSave();
+}
+
 function showPanelPassive(panel: OverlayPanel): void {
   const win = getPanelWindow(panel);
   if (win == null || win.isDestroyed()) return;
@@ -419,6 +426,7 @@ async function createApp(): Promise<void> {
   });
   ipcMain.handle('overlay:hide', (event) => hideWindow(getSenderWindow(event)));
   ipcMain.handle('overlay:resize-by', (event, deltaX: number, deltaY: number) => resizeWindowBy(getSenderWindow(event), deltaX, deltaY));
+  ipcMain.handle('overlay:move-by', (event, deltaX: number, deltaY: number) => moveWindowBy(getSenderWindow(event), deltaX, deltaY));
   ipcMain.handle('overlay:set-click-through', (event, enabled: boolean) => setWindowClickThrough(getSenderWindow(event), enabled));
   ipcMain.handle('external:open', async (_event, url: string) => {
     if (!isAllowedExternalUrl(url)) throw new Error('Blocked external URL');

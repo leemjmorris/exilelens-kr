@@ -37,7 +37,7 @@ button {
   border-radius: 14px;
   background: rgba(2, 6, 23, 0.82);
   box-shadow: 0 12px 36px rgba(0, 0, 0, 0.38);
-  -webkit-app-region: drag;
+  -webkit-app-region: no-drag;
 }
 
 .quest-hud-widget {
@@ -45,6 +45,13 @@ button {
   box-sizing: border-box;
   padding: 10px 12px 16px;
   overflow: hidden;
+  cursor: move;
+}
+
+.quest-hud-widget button,
+.quest-hud-widget .objective,
+.quest-resize-grip {
+  cursor: pointer;
 }
 
 .quest-hud-widget-area h1 {
