@@ -762,7 +762,7 @@ function QuestPanel({
 
       {questView === 'current' ? (
         <>
-          <section className="quest-hud-card">
+          <section className="quest-hud-header-block">
             <div className="quest-hud-header">
               <div>
                 <span className="hud-act-label">{currentArea.act != null ? `ACT ${currentArea.act}` : 'AREA'}</span>
@@ -809,7 +809,7 @@ function QuestPanel({
           </div>
 
           {areaCorrectionOpen ? (
-            <section className="area-override-card compact-area-override-card">
+            <section className="hud-correction-drawer">
               <div>
                 <span className="eyebrow">Area Correction</span>
                 <h2>지역 수동 보정</h2>
