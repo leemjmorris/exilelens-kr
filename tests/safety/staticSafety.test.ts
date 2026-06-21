@@ -107,6 +107,11 @@ describe('static safety guardrails', () => {
     expect(cssSource).toContain('-webkit-app-region: drag');
     expect(cssSource).toContain('-webkit-app-region: no-drag');
     expect(cssSource).toContain('.quest-resize-grip');
+    expect(cssSource).toContain('width: 22px');
+    expect(cssSource).toContain('height: 22px');
+    expect(cssSource).toContain('border: 0');
+    expect(cssSource).toContain('.quest-resize-grip::before');
+    expect(cssSource).toContain('.quest-resize-grip::after');
     expect(cssSource).toContain('cursor: nwse-resize');
   });
 

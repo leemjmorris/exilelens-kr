@@ -603,24 +603,57 @@ button {
 
 .quest-resize-grip {
   position: absolute;
-  right: 10px;
-  bottom: 10px;
-  width: 28px;
-  height: 28px;
-  border: 1px solid rgba(56, 189, 248, 0.45);
-  border-radius: 8px 4px 12px 4px;
-  background:
-    linear-gradient(135deg, transparent 0 45%, rgba(56, 189, 248, 0.28) 46% 54%, transparent 55%),
-    linear-gradient(135deg, transparent 0 62%, rgba(56, 189, 248, 0.42) 63% 70%, transparent 71%),
-    rgba(15, 23, 42, 0.92);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+  right: 4px;
+  bottom: 4px;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  box-shadow: none;
   cursor: nwse-resize;
+  opacity: 0.58;
   z-index: 10;
 }
 
-.quest-resize-grip:hover {
-  border-color: rgba(125, 211, 252, 0.8);
-  background-color: rgba(14, 165, 233, 0.18);
+.quest-resize-grip::before,
+.quest-resize-grip::after {
+  content: '';
+  position: absolute;
+  border-right: 1.5px solid rgba(186, 230, 253, 0.86);
+  border-bottom: 1.5px solid rgba(186, 230, 253, 0.86);
+  pointer-events: none;
+}
+
+.quest-resize-grip::before {
+  right: 4px;
+  bottom: 4px;
+  width: 12px;
+  height: 12px;
+  border-radius: 0 0 5px 0;
+  filter: drop-shadow(0 1px 2px rgba(2, 6, 23, 0.85));
+}
+
+.quest-resize-grip::after {
+  right: 8px;
+  bottom: 8px;
+  width: 6px;
+  height: 6px;
+  border-color: rgba(125, 211, 252, 0.68);
+  border-radius: 0 0 3px 0;
+}
+
+.quest-resize-grip:hover,
+.quest-resize-grip:focus-visible {
+  opacity: 0.96;
+  background: radial-gradient(circle at 68% 68%, rgba(125, 211, 252, 0.16), transparent 62%);
+  outline: none;
+}
+
+.quest-resize-grip:active {
+  opacity: 1;
+  transform: translate(1px, 1px);
 }
 
 .settings-panel {
