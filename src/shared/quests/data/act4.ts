@@ -13,19 +13,23 @@ export const act4Areas: AreaDefinition[] = [
   { id: 'act4-volcanic-warrens', act: 4, nameKo: '화산 굴', nameEn: 'Volcanic Warrens', logNamesKo: ['화산 굴', '화산 땅굴', 'Volcanic Warrens'], areaIdAliases: ['g4_1_2'], isTown: false, hasMapThumbnail: false, needsVerification: true, guideStepIds: ['act4-land-of-the-kin-krutog', 'act4-trial-ancestors-eye'] },
   { id: 'act4-shrike-island', act: 4, nameKo: '쉬라이크 섬', nameEn: 'Shrike Island', logNamesKo: ['쉬라이크 섬', '때까치 섬', 'Shrike Island'], areaIdAliases: ['g4_7'], isTown: false, hasMapThumbnail: false, needsVerification: true, guideStepIds: ['act4-shrike-island-boss'] },
   { id: 'act4-whakapanu-island', act: 4, nameKo: '와카파누 섬', nameEn: 'Whakapanu Island', logNamesKo: ['와카파누 섬', 'Whakapanu Island'], areaIdAliases: ['g4_3_1'], isTown: false, hasMapThumbnail: false, needsVerification: true, guideStepIds: ['act4-whakapanu-diamora', 'act4-great-white-one', 'act4-siren-pearl'] },
+  { id: 'act4-singing-caverns', act: 4, nameKo: '노래하는 암굴', nameEn: 'Singing Caverns', logNamesKo: ['노래하는 암굴', 'Singing Caverns'], areaIdAliases: ['g4_3_2'], isTown: false, hasMapThumbnail: false, needsVerification: true, guideStepIds: [] },
   { id: 'act4-ngakanu', act: 4, nameKo: '응가카누', nameEn: 'Ngakanu', logNamesKo: ['응가카누', '심연 지하', 'Ngakanu'], areaIdAliases: ['g4_11_1a', 'g4_11_1b', 'abyss_depths3'], isTown: false, hasMapThumbnail: false, needsVerification: true, guideStepIds: ['act4-abyss'] },
   { id: 'act4-tribal-heart', act: 4, nameKo: '부족의 심장부', nameEn: 'Tribal Heart', logNamesKo: ['부족의 심장부', 'Tribal Heart'], areaIdAliases: ['g4_11_2'], isTown: false, hasMapThumbnail: false, needsVerification: true, guideStepIds: ['act4-tukohama-chief-tavakai'] },
   { id: 'act4-plunders-point', act: 4, nameKo: '약탈자의 거점', nameEn: "Plunder's Point", logNamesKo: ['약탈자의 거점', '약탈의 거점', "Plunder's Point"], areaIdAliases: ['g4_13'], isTown: false, hasMapThumbnail: false, needsVerification: true, guideStepIds: ['act4-forgotten-bounty', 'act4-lonely-outpost'] },
   { id: 'act4-halls-of-the-dead', act: 4, nameKo: '망자의 전당', nameEn: 'Halls of the Dead', logNamesKo: ['망자의 전당', '죽음의 전당', 'Halls of the Dead'], areaIdAliases: ['g4_4_2'], isTown: false, hasMapThumbnail: false, needsVerification: true, guideStepIds: ['act4-ngamahu-test', 'act4-tasalio-test', 'act4-tawhoa-test', 'act4-navali-rest'] },
-  { id: 'act4-trial-of-the-ancestors', act: 4, nameKo: '조상들의 시련', nameEn: 'Trial of the Ancestors', logNamesKo: ['조상들의 시련', '선조들의 심판', '히네코라의 눈', 'Trial of the Ancestors'], areaIdAliases: ['g4_4_1'], isTown: false, hasMapThumbnail: false, needsVerification: true, guideStepIds: ['act4-trial-ancestors-complete'] },
-  { id: 'act4-vaal-ruins', act: 4, nameKo: '바알 유적', nameEn: 'Vaal Ruins', logNamesKo: ['바알 유적', 'Vaal Ruins'], isTown: false, hasMapThumbnail: false, needsVerification: true, guideStepIds: ['act4-fate-of-the-vaal-start'] },
+  { id: 'act4-trial-of-the-ancestors', act: 4, nameKo: '조상들의 시련', nameEn: 'Trial of the Ancestors', logNamesKo: ['조상들의 시련', '선조들의 심판', '히네코라의 눈', 'Trial of the Ancestors'], areaIdAliases: ['g4_4_1', 'g4_4_3'], isTown: false, hasMapThumbnail: false, needsVerification: true, guideStepIds: ['act4-trial-ancestors-complete'] },
+  { id: 'act4-vaal-ruins', act: 4, nameKo: '바알 유적', nameEn: 'Vaal Ruins', logNamesKo: ['바알 유적', 'Vaal Ruins'], areaIdAliases: ['incursionhub'], isTown: false, hasMapThumbnail: false, needsVerification: true, guideStepIds: ['act4-fate-of-the-vaal-start'] },
   { id: 'act4-atziris-temple', act: 4, nameKo: '앗지리의 사원', nameEn: "Atziri's Temple", logNamesKo: ['앗지리의 사원', "Atziri's Temple"], isTown: false, hasMapThumbnail: false, needsVerification: true, guideStepIds: ['act4-fate-of-the-vaal-atziri'] },
   { id: 'act4-arastas', act: 4, nameKo: '아라스타스', nameEn: 'Arastas', logNamesKo: ['아라스타스', 'Arastas'], areaIdAliases: ['g4_8b'], isTown: false, hasMapThumbnail: false, needsVerification: true, guideStepIds: ['act4-utopia-arastas'] },
+  { id: 'act4-excavation-site', act: 4, nameKo: '발굴터', nameEn: 'Excavation Site', logNamesKo: ['발굴터', 'Excavation Site'], areaIdAliases: ['g4_10'], isTown: false, hasMapThumbnail: false, needsVerification: true, guideStepIds: [] },
   { id: 'act4-shoreline-hideout', act: 4, nameKo: '해안 은신처', nameEn: 'Shoreline Hideout', logNamesKo: ['해안 은신처', 'Shoreline Hideout'], isTown: false, hasMapThumbnail: false, needsVerification: true, guideStepIds: ['act4-hostile-takeover-hideout'] },
   { id: 'act4-ziggurat-refuge', act: 4, nameKo: '지구라트 피난처', nameEn: 'Ziggurat Refuge', logNamesKo: ['지구라트 피난처', 'Ziggurat Refuge'], isTown: true, hasMapThumbnail: false, needsVerification: true, guideStepIds: ['act4-siege-of-oriath-refuge'] }
 ];
 
 export const act4Checklists: AreaChecklist[] = [
+  objectives('act4-singing-caverns', []),
+  objectives('act4-excavation-site', []),
   objectives('act4-kingsmarch', [
     ['act4-search-start', '탐색: 도리아니와 대화 후 킹스마치에서 선박 증서와 선도자 무기 조각 추적 시작', 'required', '4장 메인 허브'],
     ['act4-follow-tavakai', '타바카이 따라가기: 타바카이 추적 동선 확인', 'required', '4장 메인 연결 퀘스트'],

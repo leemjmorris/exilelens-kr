@@ -20,7 +20,7 @@ export const act2Areas: AreaDefinition[] = [
   { id: 'act2-spires-of-deshar', act: 2, nameKo: '데샤르의 첨탑', nameEn: 'The Spires of Deshar', logNamesKo: ['데샤르의 첨탑', 'The Spires of Deshar'], areaIdAliases: ['g2_9_2'], isTown: false, hasMapThumbnail: false, needsVerification: true, guideStepIds: ['act2-spires-route', 'act2-spires-garukhan-lightning'] },
   { id: 'act2-mawdun-quarry', act: 2, nameKo: '모둔 채석장', nameEn: 'Mawdun Quarry', logNamesKo: ['모둔 채석장', 'Mawdun Quarry'], areaIdAliases: ['g2_10_1'], isTown: false, hasMapThumbnail: false, needsVerification: true, guideStepIds: ['act2-mawdun-quarry-route'] },
   { id: 'act2-mawdun-mine', act: 2, nameKo: '모둔 광산', nameEn: 'Mawdun Mine', logNamesKo: ['모둔 광산', 'Mawdun Mine'], areaIdAliases: ['g2_10_2'], isTown: false, hasMapThumbnail: false, needsVerification: true, guideStepIds: ['act2-mawdun-mine-jamanra'] },
-  { id: 'act2-dreadnought', act: 2, nameKo: '드레드노트', nameEn: 'Dreadnought', logNamesKo: ['드레드노트', 'Dreadnought', 'The Dreadnought'], areaIdAliases: ['g2_12_1'], isTown: false, hasMapThumbnail: false, needsVerification: true, guideStepIds: ['act2-dreadnought-jamanra'] },
+  { id: 'act2-dreadnought', act: 2, nameKo: '드레드노트', nameEn: 'Dreadnought', logNamesKo: ['드레드노트', 'Dreadnought', 'The Dreadnought'], areaIdAliases: ['g2_12', 'g2_12_1'], isTown: false, hasMapThumbnail: false, needsVerification: true, guideStepIds: ['act2-dreadnought-jamanra'] },
   { id: 'act2-trial-of-the-sekhemas', act: 2, nameKo: '세케마의 시련', nameEn: 'Trial of the Sekhemas', logNamesKo: ['세케마의 시련', 'Trial of the Sekhemas'], areaIdAliases: ['g2_13'], isTown: false, hasMapThumbnail: false, needsVerification: true, guideStepIds: ['act2-ascent-to-power-trial'] }
 ];
 

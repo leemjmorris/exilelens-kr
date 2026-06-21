@@ -7,6 +7,7 @@ export const act3Areas: AreaDefinition[] = [
   { id: 'act3-sandswept-marsh', act: 3, nameKo: '모래에 휩쓸린 습지', nameEn: 'Sandswept Marsh', logNamesKo: ['모래에 휩쓸린 습지', '모래 쓸린 늪', 'Sandswept Marsh'], areaIdAliases: ['g3_1'], isTown: false, hasMapThumbnail: false, needsVerification: true, guideStepIds: ['act3-sandswept-marsh-entry', 'act3-sandswept-marsh-orok-campfire'] },
   { id: 'act3-ziggurat-encampment', act: 3, nameKo: '지구라트 야영지', nameEn: 'Ziggurat Encampment', logNamesKo: ['지구라트 야영지', 'Ziggurat Encampment'], areaIdAliases: ['g3_town'], isTown: true, hasMapThumbnail: false, needsVerification: true, guideStepIds: ['act3-ziggurat-legacy-hub', 'act3-slithering-dead-turn-in', 'act3-treasures-utzaal-turn-in'] },
   { id: 'act3-infested-barrens', act: 3, nameKo: '들끓는 불모지', nameEn: 'Infested Barrens', logNamesKo: ['들끓는 불모지', 'Infested Barrens'], areaIdAliases: ['g3_2_1'], isTown: false, hasMapThumbnail: false, needsVerification: true, guideStepIds: ['act3-legacy-infested-barrens'] },
+  { id: 'act3-mysterious-refuge', act: 3, nameKo: '신비한 피난처', nameEn: 'Mysterious Refuge', logNamesKo: ['신비한 피난처', 'Mysterious Refuge'], areaIdAliases: ['expeditionsubarea_kalguur_act3'], isTown: false, hasMapThumbnail: false, needsVerification: true, guideStepIds: [] },
   { id: 'act3-matlan-waterways', act: 3, nameKo: '마틀란 수로', nameEn: 'The Matlan Waterways', logNamesKo: ['마틀란 수로', 'The Matlan Waterways'], areaIdAliases: ['g3_2_2'], isTown: false, hasMapThumbnail: false, needsVerification: true, guideStepIds: ['act3-legacy-matlan-waterways'] },
   { id: 'act3-jungle-ruins', act: 3, nameKo: '밀림 유적', nameEn: 'Jungle Ruins', logNamesKo: ['밀림 유적', '정글 폐허', 'Jungle Ruins'], areaIdAliases: ['g3_3'], isTown: false, hasMapThumbnail: false, needsVerification: true, guideStepIds: ['act3-legacy-jungle-ruins', 'act3-jungle-ruins-silverfist-passive'] },
   { id: 'act3-venom-crypts', act: 3, nameKo: '독액 지하실', nameEn: 'The Venom Crypts', logNamesKo: ['독액 지하실', 'The Venom Crypts'], areaIdAliases: ['g3_4'], isTown: false, hasMapThumbnail: false, needsVerification: true, guideStepIds: ['act3-slithering-dead-venom-draught'] },
@@ -16,7 +17,7 @@ export const act3Areas: AreaDefinition[] = [
   { id: 'act3-azak-bog', act: 3, nameKo: '아자크 습지대', nameEn: 'The Azak Bog', logNamesKo: ['아자크 습지대', 'The Azak Bog'], areaIdAliases: ['g3_7'], isTown: false, hasMapThumbnail: false, needsVerification: true, guideStepIds: ['act3-tribal-vengeance-ignagduk'] },
   { id: 'act3-drowned-city', act: 3, nameKo: '물에 잠긴 도시', nameEn: 'The Drowned City', logNamesKo: ['물에 잠긴 도시', 'The Drowned City'], areaIdAliases: ['g3_8'], isTown: false, hasMapThumbnail: false, needsVerification: true, guideStepIds: ['act3-legacy-drowned-city'] },
   { id: 'act3-molten-vault', act: 3, nameKo: '녹아내린 금고', nameEn: 'The Molten Vault', logNamesKo: ['녹아내린 금고', 'The Molten Vault'], areaIdAliases: ['g3_9'], isTown: false, hasMapThumbnail: false, needsVerification: true, guideStepIds: ['act3-treasures-utzaal-mektul'] },
-  { id: 'act3-trial-of-chaos', act: 3, nameKo: '혼돈의 시련', nameEn: 'The Trial of Chaos', logNamesKo: ['혼돈의 시련', 'Temple of Chaos', 'The Trial of Chaos'], areaIdAliases: ['g3_10_airlock'], isTown: false, hasMapThumbnail: false, needsVerification: true, guideStepIds: ['act3-trials-chaos-complete'] },
+  { id: 'act3-trial-of-chaos', act: 3, nameKo: '혼돈의 시련', nameEn: 'The Trial of Chaos', logNamesKo: ['혼돈의 시련', '혼돈의 사원', 'Temple of Chaos', 'The Trial of Chaos'], areaIdAliases: ['g3_10_airlock'], isTown: false, hasMapThumbnail: false, needsVerification: true, guideStepIds: ['act3-trials-chaos-complete'] },
   { id: 'act3-apex-of-filth', act: 3, nameKo: '오물의 정점', nameEn: 'Apex of Filth', logNamesKo: ['오물의 정점', 'Apex of Filth'], areaIdAliases: ['g3_11'], isTown: false, hasMapThumbnail: false, needsVerification: true, guideStepIds: ['act3-legacy-apex-of-filth'] },
   { id: 'act3-temple-of-kopec', act: 3, nameKo: '코펙의 사원', nameEn: 'Temple of Kopec', logNamesKo: ['코펙의 사원', 'Temple of Kopec'], areaIdAliases: ['g3_12'], isTown: false, hasMapThumbnail: false, needsVerification: true, guideStepIds: ['act3-legacy-kopec'] },
   { id: 'act3-utzaal', act: 3, nameKo: '웃자알', nameEn: 'Utzaal', logNamesKo: ['웃자알', 'Utzaal'], areaIdAliases: ['g3_14'], isTown: false, hasMapThumbnail: false, needsVerification: true, guideStepIds: ['act3-legacy-utzaal', 'act3-treasures-utzaal'] },
@@ -25,6 +26,7 @@ export const act3Areas: AreaDefinition[] = [
 ];
 
 export const act3Checklists: AreaChecklist[] = [
+  objectives('act3-mysterious-refuge', []),
   objectives('act3-sandswept-marsh', [
     ['act3-sandswept-marsh-entry', '바알의 유산: Sandswept Marsh 진입 후 지구라트 야영지 도달', 'required', 'Act 3 메인 진입'],
     ['act3-sandswept-marsh-orok-campfire', '모래에 휩쓸린 습지: Orok Campfire 바구니 클릭으로 하급 쥬얼러 오브 보상 챙기기', 'optional', '0.5.0 기준 일회성 보상']

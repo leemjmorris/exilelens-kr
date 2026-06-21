@@ -46,7 +46,20 @@ describe('Client.txt area coverage audit', () => {
         '2026/06/21 [DEBUG Client] Generating level 54 area "Abyss_Depths3"',
         '2026/06/21 [INFO Client] [SCENE] Set Source [심연 지하]',
         '2026/06/21 [DEBUG Client] Generating level 52 area "G4_8b"',
-        '2026/06/21 [INFO Client] [SCENE] Set Source [아라스타스]'
+        '2026/06/21 [INFO Client] [SCENE] Set Source [아라스타스]',
+        '2026/06/19 [DEBUG Client] Generating level 31 area "G2_12"',
+        '2026/06/19 [INFO Client] [SCENE] Set Source [드레드노트]',
+        '2026/06/19 [INFO Client] [SCENE] Set Source [혼돈의 사원]',
+        '2026/06/21 [DEBUG Client] Generating level 51 area "G4_4_3"',
+        '2026/06/21 [INFO Client] [SCENE] Set Source [선조들의 심판]',
+        '2026/06/19 [DEBUG Client] Generating level 40 area "IncursionHub"',
+        '2026/06/19 [INFO Client] [SCENE] Set Source [바알 유적]',
+        '2026/06/21 [DEBUG Client] Generating level 49 area "G4_3_2"',
+        '2026/06/21 [INFO Client] [SCENE] Set Source [노래하는 암굴]',
+        '2026/06/21 [DEBUG Client] Generating level 52 area "G4_10"',
+        '2026/06/21 [INFO Client] [SCENE] Set Source [발굴터]',
+        '2026/06/19 [DEBUG Client] Generating level 35 area "ExpeditionSubArea_Kalguur_Act3"',
+        '2026/06/19 [INFO Client] [SCENE] Set Source [신비한 피난처]'
       ],
       areaDefinitions,
       areaChecklists
