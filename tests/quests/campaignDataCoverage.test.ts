@@ -20,7 +20,7 @@ describe('campaign quest data coverage', () => {
     const objectives = areaChecklists.flatMap((checklist) => checklist.objectives.map((objective) => ({ ...objective, areaId: checklist.areaId })));
     const objectiveIds = objectives.map((objective) => objective.id);
 
-    expect(objectives.length).toBeGreaterThanOrEqual(60);
+    expect(objectives.length).toBeGreaterThanOrEqual(80);
     expect(objectiveIds).toContain('interlude-recruit-ezomytes');
     expect(objectiveIds).toContain('interlude-recruit-maraketh');
     expect(objectiveIds).toContain('interlude-recruit-vaal');
@@ -85,6 +85,63 @@ describe('campaign quest data coverage', () => {
       'Recruit the Ezomytes'
     ]) {
       expect(joined).not.toContain(englishQuestName);
+    }
+  });
+
+  it('shows all current Abandoned Prison objectives split into required and optional buckets', () => {
+    const checklist = areaChecklists.find((entry) => entry.areaId === 'act4-abandoned-prison');
+
+    expect(checklist).toBeDefined();
+    expect(checklist?.objectives.map((objective) => objective.labelKo)).toEqual([
+      '포로: 독방 감금실에서 포로 쓰러뜨리기',
+      '잊혀진 감방: 감방 objective 확인',
+      '병기 창고: 병기 창고 objective 확인',
+      '정의의 여신: 플라스크 생명력 또는 마나 회복 30% 영구 보상 선택'
+    ]);
+    expect(checklist?.objectives.filter((objective) => objective.kind === 'required').map((objective) => objective.id)).toEqual([
+      'act4-abandoned-prison-goddess-justice'
+    ]);
+    expect(checklist?.objectives.filter((objective) => objective.kind === 'optional').map((objective) => objective.id)).toEqual([
+      'act4-abandoned-prison-prisoner',
+      'act4-abandoned-prison-forgotten-cell',
+      'act4-abandoned-prison-armoury'
+    ]);
+  });
+
+  it('covers 0.5.0 must-do permanent reward and unlock objectives from poe2db quest tables', () => {
+    const requiredObjectiveIds = new Set(
+      areaChecklists.flatMap((checklist) => checklist.objectives.filter((objective) => objective.kind === 'required').map((objective) => objective.id))
+    );
+
+    for (const expectedId of [
+      'act1-clearfell-beira',
+      'act1-hunting-grounds-crowbell-passive',
+      'act1-freythorn-ominous-altars',
+      'act1-ogham-farmlands-lost-lute',
+      'act1-ogham-village-forge',
+      'act1-ogham-manor-candlemass-life',
+      'act2-ancient-vows-medallion',
+      'act2-traditions-toll-final-letter',
+      'act2-spires-garukhan-lightning',
+      'act3-jungle-ruins-silverfist-passive',
+      'act3-tribal-vengeance-ignagduk',
+      'act3-machinarium-blackjaw-fire',
+      'act3-treasures-utzaal-mektul',
+      'act3-aggorat-sacrificial-heart',
+      'act4-abandoned-prison-goddess-justice',
+      'act4-omniphobia-passive',
+      'act4-blind-beast',
+      'act4-great-white-one',
+      'act4-navali-rest',
+      'act4-trial-ancestors-complete',
+      'interlude-wolvenhold-oswin-passive',
+      'interlude-khari-skullmaw-life',
+      'interlude-khari-worm-scorpion-passive',
+      'interlude-qimah-boon-choice',
+      'interlude-kriar-lythara-spirit',
+      'interlude-howling-caves-yeti-passive'
+    ]) {
+      expect(requiredObjectiveIds).toContain(expectedId);
     }
   });
 

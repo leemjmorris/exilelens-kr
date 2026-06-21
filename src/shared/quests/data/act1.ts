@@ -135,7 +135,7 @@ export const act1Areas: AreaDefinition[] = [
     isTown: false,
     hasMapThumbnail: false,
     needsVerification: true,
-    guideStepIds: ['act1-hunting-grounds-trail', 'act1-hunting-grounds-hunt-begins']
+    guideStepIds: ['act1-hunting-grounds-trail', 'act1-hunting-grounds-crowbell-passive', 'act1-hunting-grounds-hunt-begins']
   },
   {
     id: 'act1-freythorn',
@@ -206,7 +206,7 @@ export const act1Areas: AreaDefinition[] = [
     isTown: false,
     hasMapThumbnail: false,
     needsVerification: true,
-    guideStepIds: ['act1-ogham-manor-mad-wolf']
+    guideStepIds: ['act1-ogham-manor-mad-wolf', 'act1-ogham-manor-candlemass-life']
   }
 ];
 
@@ -250,9 +250,9 @@ export const act1Checklists: AreaChecklist[] = [
     objectives: [
       {
         id: 'act1-clearfell-beira',
-        labelKo: '썩은 무리의 베이라 처치 가능 여부 확인',
-        kind: 'optional',
-        notesKo: 'poe2wiki Act 1 진행 표의 Clearfell 보스. 퀘스트 보상/영구 보상 여부는 미확인.',
+        labelKo: '썩은 무리의 베이라 처치: 냉기 저항 +10% 영구 보상 챙기기',
+        kind: 'required',
+        notesKo: '0.5.0 기준 꼭 챙길 Act 1 영구 보상. poe2db Quest 보상 표 기준.',
         needsVerification: true
       }
     ]
@@ -360,6 +360,13 @@ export const act1Checklists: AreaChecklist[] = [
         needsVerification: true
       },
       {
+        id: 'act1-hunting-grounds-crowbell-passive',
+        labelKo: '까마귀종 처치: 패시브 스킬 2포인트 영구 보상 챙기기',
+        kind: 'required',
+        notesKo: '0.5.0 기준 꼭 챙길 Act 1 영구 보상. poe2db Quest 보상 표의 The Crowbell 기준.',
+        needsVerification: true
+      },
+      {
         id: 'act1-hunting-grounds-hunt-begins',
         labelKo: '사냥의 시작: 델윈/아즈메리 위습 소개 퀘스트 확인',
         kind: 'optional',
@@ -374,9 +381,9 @@ export const act1Checklists: AreaChecklist[] = [
     objectives: [
       {
         id: 'act1-freythorn-ominous-altars',
-        labelKo: '불길한 제단: 의식 제단 정화 및 연무 속의 왕 처치',
-        kind: 'optional',
-        notesKo: 'poe2wiki 선택 퀘스트 기준.',
+        labelKo: '불길한 제단: 의식 제단 정화 및 연무 속의 왕 처치로 정신력 +30 챙기기',
+        kind: 'required',
+        notesKo: '0.5.0 기준 꼭 챙길 Act 1 영구 보상. poe2db Quest 보상 표 기준.',
         needsVerification: true
       }
     ]
@@ -392,9 +399,9 @@ export const act1Checklists: AreaChecklist[] = [
     objectives: [
       {
         id: 'act1-ogham-farmlands-lost-lute',
-        labelKo: '잃어버린 류트: 우나의 류트 찾기',
-        kind: 'optional',
-        notesKo: 'poe2wiki 선택 퀘스트 기준. 보상은 무기 세트 패시브 2포인트로 기재되어 있어 영구 보상 가능성이 높으나 실제 KR 클라이언트 검증 필요.',
+        labelKo: '잃어버린 류트: 우나의 류트를 찾아 패시브 스킬 2포인트 챙기기',
+        kind: 'required',
+        notesKo: '0.5.0 기준 꼭 챙길 Act 1 영구 보상. poe2db Quest 보상 표 기준.',
         needsVerification: true
       }
     ]
@@ -412,9 +419,9 @@ export const act1Checklists: AreaChecklist[] = [
       },
       {
         id: 'act1-ogham-village-forge',
-        labelKo: '대장간 찾기: 대장장이 도구 찾기',
-        kind: 'optional',
-        notesKo: 'poe2wiki 선택 퀘스트 기준. 제작대/대장간 해금 동선 검증 필요.',
+        labelKo: '대장간 찾기: 대장장이 도구를 찾아 분해 작업대 해금',
+        kind: 'required',
+        notesKo: '0.5.0 기준 꼭 챙길 Act 1 시스템 해금. poe2db Quest 보상 표 기준.',
         needsVerification: true
       }
     ]
@@ -441,6 +448,13 @@ export const act1Checklists: AreaChecklist[] = [
         labelKo: '오검의 미친 늑대: 지오너 백작 처치 후 2장으로 진행',
         kind: 'required',
         notesKo: 'poe2wiki Act 1 진행 표는 Ogham Manor, 퀘스트 페이지는 The Iron Manor로 표기되어 출처 간 명칭 차이 있음.',
+        needsVerification: true
+      },
+      {
+        id: 'act1-ogham-manor-candlemass-life',
+        labelKo: '캔들매스 처치: 최대 생명력 +20 영구 보상 챙기기',
+        kind: 'required',
+        notesKo: '0.5.0 기준 꼭 챙길 Act 1 영구 보상. poe2db Quest 보상 표의 Candlemass 기준.',
         needsVerification: true
       }
     ]

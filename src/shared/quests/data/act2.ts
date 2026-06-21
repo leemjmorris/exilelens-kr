@@ -17,7 +17,7 @@ export const act2Areas: AreaDefinition[] = [
   { id: 'act2-titan-grotto', act: 2, nameKo: '거신 석굴', nameEn: 'The Titan Grotto', logNamesKo: ['거신 석굴', '거인 동굴', 'The Titan Grotto'], areaIdAliases: ['g2_7'], isTown: false, hasMapThumbnail: false, needsVerification: true, guideStepIds: ['act2-crown-stone-flame-ruby'] },
   { id: 'act2-deshar', act: 2, nameKo: '데샤르', nameEn: 'Deshar', logNamesKo: ['데샤르', 'Deshar'], areaIdAliases: ['g2_8'], isTown: false, hasMapThumbnail: false, needsVerification: true, guideStepIds: ['act2-traditions-toll-final-letter'] },
   { id: 'act2-path-of-mourning', act: 2, nameKo: '통곡의 길', nameEn: 'Path of Mourning', logNamesKo: ['통곡의 길', 'Path of Mourning'], areaIdAliases: ['g2_9_1'], isTown: false, hasMapThumbnail: false, needsVerification: true, guideStepIds: ['act2-path-mourning-route'] },
-  { id: 'act2-spires-of-deshar', act: 2, nameKo: '데샤르의 첨탑', nameEn: 'The Spires of Deshar', logNamesKo: ['데샤르의 첨탑', 'The Spires of Deshar'], areaIdAliases: ['g2_9_2'], isTown: false, hasMapThumbnail: false, needsVerification: true, guideStepIds: ['act2-spires-route'] },
+  { id: 'act2-spires-of-deshar', act: 2, nameKo: '데샤르의 첨탑', nameEn: 'The Spires of Deshar', logNamesKo: ['데샤르의 첨탑', 'The Spires of Deshar'], areaIdAliases: ['g2_9_2'], isTown: false, hasMapThumbnail: false, needsVerification: true, guideStepIds: ['act2-spires-route', 'act2-spires-garukhan-lightning'] },
   { id: 'act2-mawdun-quarry', act: 2, nameKo: '모둔 채석장', nameEn: 'Mawdun Quarry', logNamesKo: ['모둔 채석장', 'Mawdun Quarry'], areaIdAliases: ['g2_10_1'], isTown: false, hasMapThumbnail: false, needsVerification: true, guideStepIds: ['act2-mawdun-quarry-route'] },
   { id: 'act2-mawdun-mine', act: 2, nameKo: '모둔 광산', nameEn: 'Mawdun Mine', logNamesKo: ['모둔 광산', 'Mawdun Mine'], areaIdAliases: ['g2_10_2'], isTown: false, hasMapThumbnail: false, needsVerification: true, guideStepIds: ['act2-mawdun-mine-jamanra'] },
   { id: 'act2-dreadnought', act: 2, nameKo: '드레드노트', nameEn: 'Dreadnought', logNamesKo: ['드레드노트', 'Dreadnought', 'The Dreadnought'], areaIdAliases: ['g2_12_1'], isTown: false, hasMapThumbnail: false, needsVerification: true, guideStepIds: ['act2-dreadnought-jamanra'] },
@@ -34,8 +34,8 @@ export const act2Checklists: AreaChecklist[] = [
   ]),
   objective('act2-traitors-passage', 'act2-ascent-to-power-balbala', '힘의 상승: Balbala/Djinn Barya 획득', 'optional', 'Ascendancy unlock chain 시작'),
   objective('act2-halani-gates', 'act2-halani-gates-sandstorm', 'Halani Gates: 모래폭풍 조우 후 Act 2 주요 분기 해금', 'required', '돌의 왕관 / 상아 도둑 / 일곱 갈래 물의 도시 시작 지점'),
-  objective('act2-keth', 'act2-ancient-vows-kabala-relic', '고대의 맹세: Kabala Clan Relic 획득 가능 여부 확인', 'optional', 'Keth 또는 Lost City 관련 선택 퀘스트'),
-  objective('act2-lost-city', 'act2-ancient-vows-lost-city-relic', '고대의 맹세: Serpent 계열 적에게서 Relic 획득 확인', 'optional', 'Keth/Lost City 공통 진행'),
+  objective('act2-keth', 'act2-ancient-vows-kabala-relic', '고대의 맹세: Kabala Clan Relic 획득', 'required', '0.5.0 기준 Charm 관련 꼭 챙길 Act 2 영구 보상'),
+  objective('act2-lost-city', 'act2-ancient-vows-lost-city-relic', '고대의 맹세: Serpent 계열 적에게서 Relic 획득 확인', 'required', 'Keth/Lost City 공통 Charm 보상 진행'),
   objective('act2-buried-shrines', 'act2-city-seven-waters-essence', '일곱 갈래 물의 도시: Azarian 처치 및 핵심 아이템 획득', 'required', 'Buried Shrines 메인 목표'),
   objectives('act2-mastodon-badlands', [
     ['act2-theft-ivory-find-bone-pits', '상아 도둑: Bone Pits 입구 찾기', 'required', 'Mastodon Badlands 탐색'],
@@ -43,16 +43,19 @@ export const act2Checklists: AreaChecklist[] = [
   ]),
   objectives('act2-bone-pits', [
     ['act2-theft-ivory-tusks', '상아 도둑: Ekbab/Iktab 처치 후 Mastodon Tusks 획득', 'required', 'Bone Pits 메인 목표'],
-    ['act2-ancient-vows-sun-relic', '고대의 맹세: Sun Clan Relic 획득 가능 여부 확인', 'optional', 'Bone Pits 선택 퀘스트']
+    ['act2-ancient-vows-sun-relic', '고대의 맹세: Sun Clan Relic 획득', 'required', '0.5.0 기준 Charm 관련 꼭 챙길 Act 2 영구 보상']
   ]),
   objectives('act2-valley-of-the-titans', [
     ['act2-crown-stone-ancient-seals', '돌의 왕관: Ancient Seals 활성화 후 Titan Grotto 진입', 'required', 'Valley of the Titans 진행'],
-    ['act2-ancient-vows-medallion', '고대의 맹세: Statue of a Titan 메달리온에 Relics 장착', 'optional', 'Charm 보상 선택']
+    ['act2-ancient-vows-medallion', '고대의 맹세: Statue of a Titan 메달리온에 Relics 장착 후 Charm 보상 선택', 'required', '0.5.0 기준 꼭 챙길 Act 2 영구 보상']
   ]),
   objective('act2-titan-grotto', 'act2-crown-stone-flame-ruby', '돌의 왕관: Zalmarath 처치 후 Flame Ruby 획득', 'required', 'Titan Grotto 메인 목표'),
-  objective('act2-deshar', 'act2-traditions-toll-final-letter', "관례의 대가: Final Letter 찾아 Shambrin에게 전달", 'optional', 'Deshar 선택 퀘스트'),
+  objective('act2-deshar', 'act2-traditions-toll-final-letter', "관례의 대가: Final Letter를 찾아 Shambrin에게 전달하고 패시브 스킬 2포인트 챙기기", 'required', '0.5.0 기준 꼭 챙길 Act 2 영구 보상'),
   objective('act2-path-of-mourning', 'act2-path-mourning-route', 'Path of Mourning: Deshar 첨탑 방향 메인 루트 진행', 'required', '메인 동선 확인용'),
-  objective('act2-spires-of-deshar', 'act2-spires-route', 'The Spires of Deshar: Dreadnought 방향 진행', 'required', '메인 동선 확인용'),
+  objectives('act2-spires-of-deshar', [
+    ['act2-spires-route', 'The Spires of Deshar: Dreadnought 방향 진행', 'required', '메인 동선 확인용'],
+    ['act2-spires-garukhan-lightning', '데샤르의 첨탑: 가루칸 성소 클릭으로 번개 저항 +10% 영구 보상 챙기기', 'required', '0.5.0 기준 꼭 챙길 Act 2 영구 보상']
+  ]),
   objective('act2-mawdun-quarry', 'act2-mawdun-quarry-route', 'Mawdun Quarry: Mawdun Mine 방향 진행', 'required', '메인 동선 확인용'),
   objective('act2-mawdun-mine', 'act2-mawdun-mine-jamanra', 'Mawdun Mine: Jamanra 추적 루트 진행', 'required', 'Dreadnought 진입 전 메인 동선'),
   objective('act2-dreadnought', 'act2-dreadnought-jamanra', 'Dreadnought: Jamanra, the Risen King 추적 및 Act 3 진행', 'required', 'Act 2 최종 메인 목표'),
