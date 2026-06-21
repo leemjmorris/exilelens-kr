@@ -1,0 +1,84 @@
+import { readdirSync, readFileSync, statSync } from 'node:fs';
+import { join } from 'node:path';
+import { describe, expect, it } from 'vitest';
+
+const sourceRoot = join(process.cwd(), 'src');
+
+function listSourceFiles(directory: string): string[] {
+  return readdirSync(directory).flatMap((entry) => {
+    const fullPath = join(directory, entry);
+    const stats = statSync(fullPath);
+    if (stats.isDirectory()) return listSourceFiles(fullPath);
+    return /\.(ts|tsx)$/.test(entry) ? [fullPath] : [];
+  });
+}
+
+describe('static safety guardrails', () => {
+  it('does not contain forbidden global Escape shortcut registration', () => {
+    const offenders = listSourceFiles(sourceRoot).filter((file) => {
+      const source = readFileSync(file, 'utf8');
+      return /globalShortcut\.register\(\s*['"]Escape['"]/.test(source);
+    });
+
+    expect(offenders).toEqual([]);
+  });
+
+  it('does not contain memory, packet, click, or trade automation primitives', () => {
+    const forbiddenPatterns = [
+      /ReadProcessMemory/,
+      /WriteProcessMemory/,
+      /CreateRemoteThread/,
+      /WinPcap|Npcap|pcap_/,
+      /packet\s*(capture|sniff|intercept)/i,
+      /auto\s*click/i,
+      /mouse_event|SendInput/,
+      /automateTrade|autoTrade|sendWhisper/i
+    ];
+
+    const offenders = listSourceFiles(sourceRoot).flatMap((file) => {
+      const source = readFileSync(file, 'utf8');
+      return forbiddenPatterns.some((pattern) => pattern.test(source)) ? [file] : [];
+    });
+
+    expect(offenders).toEqual([]);
+  });
+
+  it('requires a single-instance lock so stacked transparent overlays cannot accumulate', () => {
+    const mainSource = readFileSync(join(sourceRoot, 'main', 'main.ts'), 'utf8');
+
+    expect(mainSource).toContain('app.requestSingleInstanceLock()');
+    expect(mainSource).toContain("app.on('second-instance'");
+  });
+
+  it('keeps the overlay click-through by default so the game remains playable', () => {
+    const mainSource = readFileSync(join(sourceRoot, 'main', 'main.ts'), 'utf8');
+    const rendererSource = readFileSync(join(sourceRoot, 'renderer', 'App.tsx'), 'utf8');
+
+    expect(mainSource).toContain('setIgnoreMouseEvents(enabled, { forward: true })');
+    expect(mainSource).toContain('showInactive()');
+    expect(rendererSource).toContain('setOverlayClickThrough');
+    expect(rendererSource).toContain('elementFromPoint');
+  });
+
+  it('keeps a system tray icon while toggling taskbar visibility with the overlay', () => {
+    const mainSource = readFileSync(join(sourceRoot, 'main', 'main.ts'), 'utf8');
+    const windowSource = readFileSync(join(sourceRoot, 'main', 'windows', 'overlayWindow.ts'), 'utf8');
+
+    expect(mainSource).toContain('new Tray(');
+    expect(mainSource).toContain('createAppTray()');
+    expect(mainSource).toContain('overlayWindow.setSkipTaskbar(false)');
+    expect(mainSource).toContain('overlayWindow.setSkipTaskbar(true)');
+    expect(windowSource).toContain('show: false');
+    expect(windowSource).toContain('skipTaskbar: true');
+  });
+
+  it('uses a single fixed-header content scroller in the overlay shell', () => {
+    const appSource = readFileSync(join(sourceRoot, 'renderer', 'App.tsx'), 'utf8');
+    const cssSource = readFileSync(join(sourceRoot, 'renderer', 'styles', 'globals.css'), 'utf8');
+
+    expect(appSource).toContain('className="overlay-content"');
+    expect(cssSource).toMatch(/\.overlay-shell\s*\{[\s\S]*overflow:\s*hidden;/);
+    expect(cssSource).toMatch(/\.overlay-content\s*\{[\s\S]*overflow-y:\s*auto;/);
+    expect(cssSource).not.toMatch(/\.overlay-header\s*\{[\s\S]*position:\s*sticky;/);
+  });
+});
