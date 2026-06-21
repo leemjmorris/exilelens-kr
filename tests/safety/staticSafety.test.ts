@@ -81,4 +81,18 @@ describe('static safety guardrails', () => {
     expect(cssSource).toMatch(/\.overlay-content\s*\{[\s\S]*overflow-y:\s*auto;/);
     expect(cssSource).not.toMatch(/\.overlay-header\s*\{[\s\S]*position:\s*sticky;/);
   });
+
+  it('shows required and optional quest buckets in the all-area progress board', () => {
+    const appSource = readFileSync(join(sourceRoot, 'renderer', 'App.tsx'), 'utf8');
+    const cssSource = readFileSync(join(sourceRoot, 'renderer', 'styles', 'globals.css'), 'utf8');
+
+    expect(appSource).toContain('필수 미완료');
+    expect(appSource).toContain('선택 미완료');
+    expect(appSource).toContain('필수 완료');
+    expect(appSource).toContain('선택 완료');
+    expect(appSource).toContain('area-progress-badges');
+    expect(appSource).toContain('objective-kind required-badge');
+    expect(cssSource).toContain('.required-alert');
+    expect(cssSource).toContain('.optional-badge');
+  });
 });

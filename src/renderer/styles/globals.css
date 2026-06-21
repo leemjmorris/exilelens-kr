@@ -219,6 +219,38 @@ button {
   padding: 1px 6px;
 }
 
+.objective-kind,
+.required-badge,
+.optional-badge {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  margin-right: 6px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1;
+  padding: 4px 7px;
+  text-decoration: none;
+}
+
+.required-badge {
+  border: 1px solid rgba(248, 113, 113, 0.5);
+  background: rgba(127, 29, 29, 0.28);
+  color: #fecaca;
+}
+
+.required-alert {
+  background: rgba(220, 38, 38, 0.42);
+  box-shadow: 0 0 0 1px rgba(248, 113, 113, 0.2);
+}
+
+.optional-badge {
+  border: 1px solid rgba(56, 189, 248, 0.38);
+  background: rgba(14, 116, 144, 0.2);
+  color: #bae6fd;
+}
+
 .objective small {
   display: block;
   margin-top: 4px;
@@ -305,10 +337,26 @@ button {
   font-size: 12px;
 }
 
+.area-progress-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.area-progress-badges .required-badge,
+.area-progress-badges .optional-badge {
+  margin-right: 0;
+}
+
 .area-progress-columns {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
+}
+
+.area-progress-columns-detailed {
+  align-items: start;
 }
 
 .quest-status-list {

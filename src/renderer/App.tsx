@@ -815,6 +815,8 @@ function AreaProgressCard({
 }): React.ReactElement {
   const completedCount = area.completedObjectives.length;
   const incompleteCount = area.incompleteObjectives.length;
+  const completedGroups = groupChecklistObjectives(area.completedObjectives);
+  const incompleteGroups = groupChecklistObjectives(area.incompleteObjectives);
 
   return (
     <article className={`area-progress-card ${area.isCurrentArea ? 'area-progress-current' : ''}`}>
@@ -829,24 +831,46 @@ function AreaProgressCard({
             {area.needsVerification ? ' · 검증 필요' : ''}
             {area.isCurrentArea ? ' · 현재 지역' : ''}
           </span>
+          {area.totalObjectives > 0 ? (
+            <div className="area-progress-badges" aria-label="필수 선택 미완료 요약">
+              <span className={incompleteGroups.required.length > 0 ? 'required-badge required-alert' : 'required-badge'}>
+                필수 미완료 {incompleteGroups.required.length}
+              </span>
+              <span className="optional-badge">선택 미완료 {incompleteGroups.optional.length}</span>
+            </div>
+          ) : null}
         </div>
       </header>
 
       {area.totalObjectives === 0 ? (
         <p className="empty-state">등록된 퀘스트 항목 없음</p>
       ) : (
-        <div className="area-progress-columns">
+        <div className="area-progress-columns area-progress-columns-detailed">
           <QuestStatusList
-            title="완료"
+            title="필수 미완료"
             areaId={area.areaId}
-            objectives={area.completedObjectives}
+            objectives={incompleteGroups.required}
             progress={progress}
             onToggleObjective={onToggleObjective}
           />
           <QuestStatusList
-            title="미완료"
+            title="선택 미완료"
             areaId={area.areaId}
-            objectives={area.incompleteObjectives}
+            objectives={incompleteGroups.optional}
+            progress={progress}
+            onToggleObjective={onToggleObjective}
+          />
+          <QuestStatusList
+            title="필수 완료"
+            areaId={area.areaId}
+            objectives={completedGroups.required}
+            progress={progress}
+            onToggleObjective={onToggleObjective}
+          />
+          <QuestStatusList
+            title="선택 완료"
+            areaId={area.areaId}
+            objectives={completedGroups.optional}
             progress={progress}
             onToggleObjective={onToggleObjective}
           />
@@ -886,6 +910,9 @@ function QuestStatusList({
                 >
                   <span className="objective-check">{completed ? '✓' : '○'}</span>
                   <span>
+                    <span className={objective.kind === 'required' ? 'objective-kind required-badge' : 'objective-kind optional-badge'}>
+                      {objective.kind === 'required' ? '필수' : '선택'}
+                    </span>
                     {objective.labelKo}
                     {objective.needsVerification ? <em>검증 필요</em> : null}
                   </span>
