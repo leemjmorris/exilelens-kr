@@ -103,6 +103,13 @@ describe('static safety guardrails', () => {
     expect(appSource).toContain('선택 완료');
     expect(appSource).toContain('area-progress-badges');
     expect(appSource).toContain('objective-kind required-badge');
+    expect(appSource).toContain('quest-view-switch');
+    expect(appSource).toContain('현재 지역 퀘스트');
+    expect(appSource).toContain('전체 지역 현황');
+    expect(appSource).toContain("questView === 'current'");
+    expect(appSource).toContain("questView === 'all'");
+    expect(cssSource).toContain('.quest-view-switch');
+    expect(cssSource).toContain('.active-view');
     expect(cssSource).toContain('.required-alert');
     expect(cssSource).toContain('.optional-badge');
   });

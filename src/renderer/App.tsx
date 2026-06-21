@@ -24,6 +24,7 @@ import './styles/globals.css';
 
 type Route = 'item' | 'quest' | 'settings';
 type OverlayPanel = 'quest' | 'trade';
+type QuestView = 'current' | 'all';
 
 const LOCAL_PROGRESS_KEY = 'exilelens.questProgress';
 
@@ -685,6 +686,7 @@ function QuestPanel({
   onRestoreAutomatic: () => Promise<void>;
 }): React.ReactElement {
   const grouped = checklist == null ? { required: [], optional: [] } : groupChecklistObjectives(checklist.objectives);
+  const [questView, setQuestView] = useState<QuestView>('current');
   const sourceLabel =
     currentArea.detectedFrom === 'client_log'
       ? 'Client.txt'
@@ -700,79 +702,92 @@ function QuestPanel({
 
   return (
     <section className="panel quest-panel">
-      <div className="current-area-card">
-        <span className="eyebrow">Current Area</span>
-        <h1>{currentArea.areaNameKo ?? '지역 미감지'}</h1>
-        <p>
-          출처: {sourceLabel} · 신뢰도: {confidenceLabel}
-          {currentArea.act != null ? ` · Act ${currentArea.act}` : ''}
-        </p>
+      <div className="quest-view-switch" aria-label="퀘스트 보기 전환">
+        <button className={questView === 'current' ? 'active-view' : ''} onClick={() => setQuestView('current')}>
+          현재 지역 퀘스트
+        </button>
+        <button className={questView === 'all' ? 'active-view' : ''} onClick={() => setQuestView('all')}>
+          전체 지역 현황
+        </button>
       </div>
 
-      <section className="area-override-card">
-        <div>
-          <span className="eyebrow">Area Correction</span>
-          <h2>지역 수동 보정</h2>
-          <p>
-            Client.txt 감지가 실패했거나 다른 지역 체크리스트가 필요하면 로컬 데이터에서 직접 선택하세요.
-            수동 보정은 설정에 저장되며, 자동 복귀 버튼으로 해제할 수 있습니다.
-          </p>
-        </div>
-        <div className="area-override-actions">
-          <label className="field-row area-select">
-            <span>현재 체크리스트 지역</span>
-            <select
-              value={manualAreaOverrideId ?? currentArea.areaId ?? ''}
-              disabled={areaActionPending}
-              onChange={(event) => void onSelectManualArea(event.target.value)}
-            >
-              <option value="" disabled>
-                지역 선택
-              </option>
-              {areaGroups.map((group) => (
-                <optgroup key={group.act} label={formatActLabel(group.act)}>
-                  {group.areas.map((area) => (
-                    <option key={area.id} value={area.id}>
-                      {area.nameKo}{area.nameEn != null ? ` / ${area.nameEn}` : ''}{area.isTown ? ' (마을)' : ''}
-                    </option>
+      {questView === 'current' ? (
+        <>
+          <div className="current-area-card">
+            <span className="eyebrow">Current Area</span>
+            <h1>{currentArea.areaNameKo ?? '지역 미감지'}</h1>
+            <p>
+              출처: {sourceLabel} · 신뢰도: {confidenceLabel}
+              {currentArea.act != null ? ` · Act ${currentArea.act}` : ''}
+            </p>
+          </div>
+
+          <section className="area-override-card">
+            <div>
+              <span className="eyebrow">Area Correction</span>
+              <h2>지역 수동 보정</h2>
+              <p>
+                Client.txt 감지가 실패했거나 다른 지역 체크리스트가 필요하면 로컬 데이터에서 직접 선택하세요.
+                수동 보정은 설정에 저장되며, 자동 복귀 버튼으로 해제할 수 있습니다.
+              </p>
+            </div>
+            <div className="area-override-actions">
+              <label className="field-row area-select">
+                <span>현재 체크리스트 지역</span>
+                <select
+                  value={manualAreaOverrideId ?? currentArea.areaId ?? ''}
+                  disabled={areaActionPending}
+                  onChange={(event) => void onSelectManualArea(event.target.value)}
+                >
+                  <option value="" disabled>
+                    지역 선택
+                  </option>
+                  {areaGroups.map((group) => (
+                    <optgroup key={group.act} label={formatActLabel(group.act)}>
+                      {group.areas.map((area) => (
+                        <option key={area.id} value={area.id}>
+                          {area.nameKo}{area.nameEn != null ? ` / ${area.nameEn}` : ''}{area.isTown ? ' (마을)' : ''}
+                        </option>
+                      ))}
+                    </optgroup>
                   ))}
-                </optgroup>
-              ))}
-            </select>
-          </label>
-          <button disabled={manualAreaOverrideId == null || areaActionPending} onClick={() => void onRestoreAutomatic()}>
-            {areaActionPending ? '처리 중...' : '자동/데모 감지로 복귀'}
-          </button>
-          {areaActionStatus.length > 0 ? <span className="status-pill">{areaActionStatus}</span> : null}
-        </div>
-      </section>
+                </select>
+              </label>
+              <button disabled={manualAreaOverrideId == null || areaActionPending} onClick={() => void onRestoreAutomatic()}>
+                {areaActionPending ? '처리 중...' : '자동/데모 감지로 복귀'}
+              </button>
+              {areaActionStatus.length > 0 ? <span className="status-pill">{areaActionStatus}</span> : null}
+            </div>
+          </section>
 
-      {checklist == null ? (
-        <p className="empty-state">이 지역에 연결된 체크리스트가 아직 없습니다.</p>
+          {checklist == null ? (
+            <p className="empty-state">이 지역에 연결된 체크리스트가 아직 없습니다.</p>
+          ) : (
+            <div className="checklist-grid">
+              <ChecklistGroup
+                title="[필수]"
+                areaId={checklist.areaId}
+                objectives={grouped.required}
+                progress={progress}
+                onToggleObjective={onToggleObjective}
+              />
+              <ChecklistGroup
+                title="[선택]"
+                areaId={checklist.areaId}
+                objectives={grouped.optional}
+                progress={progress}
+                onToggleObjective={onToggleObjective}
+              />
+            </div>
+          )}
+        </>
       ) : (
-        <div className="checklist-grid">
-          <ChecklistGroup
-            title="[필수]"
-            areaId={checklist.areaId}
-            objectives={grouped.required}
-            progress={progress}
-            onToggleObjective={onToggleObjective}
-          />
-          <ChecklistGroup
-            title="[선택]"
-            areaId={checklist.areaId}
-            objectives={grouped.optional}
-            progress={progress}
-            onToggleObjective={onToggleObjective}
-          />
-        </div>
+        <AllAreaProgressBoard
+          progressGroups={progressGroups}
+          progress={progress}
+          onToggleObjective={onToggleObjective}
+        />
       )}
-
-      <AllAreaProgressBoard
-        progressGroups={progressGroups}
-        progress={progress}
-        onToggleObjective={onToggleObjective}
-      />
     </section>
   );
 }

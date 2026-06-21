@@ -90,6 +90,30 @@ button {
   gap: 18px;
 }
 
+.quest-view-switch {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 14px;
+  background: rgba(15, 23, 42, 0.56);
+  padding: 6px;
+}
+
+.quest-view-switch button {
+  border-color: transparent;
+  background: transparent;
+  color: #94a3b8;
+  font-weight: 800;
+}
+
+.quest-view-switch button.active-view {
+  border-color: rgba(56, 189, 248, 0.5);
+  background: rgba(14, 165, 233, 0.22);
+  color: #e0f2fe;
+  box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.12);
+}
+
 .current-area-card {
   border: 1px solid rgba(56, 189, 248, 0.28);
   border-radius: 16px;
