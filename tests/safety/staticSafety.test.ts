@@ -60,16 +60,27 @@ describe('static safety guardrails', () => {
     expect(rendererSource).toContain('elementFromPoint');
   });
 
-  it('keeps a system tray icon while toggling taskbar visibility with the overlay', () => {
+  it('keeps a system tray icon while toggling taskbar visibility with split overlay windows', () => {
     const mainSource = readFileSync(join(sourceRoot, 'main', 'main.ts'), 'utf8');
     const windowSource = readFileSync(join(sourceRoot, 'main', 'windows', 'overlayWindow.ts'), 'utf8');
+    const appSource = readFileSync(join(sourceRoot, 'renderer', 'App.tsx'), 'utf8');
+    const cssSource = readFileSync(join(sourceRoot, 'renderer', 'styles', 'globals.css'), 'utf8');
 
     expect(mainSource).toContain('new Tray(');
     expect(mainSource).toContain('createAppTray()');
-    expect(mainSource).toContain('overlayWindow.setSkipTaskbar(false)');
-    expect(mainSource).toContain('overlayWindow.setSkipTaskbar(true)');
+    expect(mainSource).toContain("questWindow = createOverlayWindow({ panel: 'quest'");
+    expect(mainSource).toContain("tradeWindow = createOverlayWindow({ panel: 'trade'");
+    expect(mainSource).toContain('win.setSkipTaskbar(false)');
+    expect(mainSource).toContain('win.setSkipTaskbar(true)');
+    expect(mainSource).toContain('savePanelBounds()');
     expect(windowSource).toContain('show: false');
     expect(windowSource).toContain('skipTaskbar: true');
+    expect(windowSource).toContain('resizable: true');
+    expect(windowSource).toContain("alwaysOnTop: options.panel === 'quest'");
+    expect(appSource).toContain("panel === 'trade'");
+    expect(appSource).toContain('aria-label="시세 창 닫기"');
+    expect(cssSource).toContain('-webkit-app-region: drag');
+    expect(cssSource).toContain('-webkit-app-region: no-drag');
   });
 
   it('uses a single fixed-header content scroller in the overlay shell', () => {

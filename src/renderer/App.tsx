@@ -23,11 +23,22 @@ import { FALLBACK_POE2_TRADE_LEAGUES, type TradeLeague } from '../shared/trade/l
 import './styles/globals.css';
 
 type Route = 'item' | 'quest' | 'settings';
+type OverlayPanel = 'quest' | 'trade';
 
 const LOCAL_PROGRESS_KEY = 'exilelens.questProgress';
 
+function getInitialPanel(): OverlayPanel {
+  const panel = new URLSearchParams(window.location.search).get('panel');
+  return panel === 'trade' ? 'trade' : 'quest';
+}
+
+function getInitialRoute(panel: OverlayPanel): Route {
+  return panel === 'trade' ? 'item' : 'quest';
+}
+
 function App(): React.ReactElement {
-  const [route, setRoute] = useState<Route>('quest');
+  const panel = useMemo(() => getInitialPanel(), []);
+  const [route, setRoute] = useState<Route>(() => getInitialRoute(panel));
   const [currentArea, setCurrentArea] = useState<AreaDetectionState>(getDemoAreaDetection());
   const [progress, setProgress] = useState<QuestProgress>(() => loadLocalProgress());
   const [settings, setSettings] = useState<AppSettings>(DEFAULT_APP_SETTINGS);
@@ -105,8 +116,15 @@ function App(): React.ReactElement {
   }, []);
 
   useEffect(() => {
-    return window.exileLens?.onNavigate((nextRoute) => setRoute(nextRoute)) ?? (() => undefined);
-  }, []);
+    return window.exileLens?.onNavigate((nextRoute) => {
+      if (panel === 'trade') {
+        setRoute('item');
+        return;
+      }
+      if (nextRoute === 'item') return;
+      setRoute(nextRoute);
+    }) ?? (() => undefined);
+  }, [panel]);
 
   useEffect(() => {
     function handleOverlayKeyDown(event: KeyboardEvent): void {
@@ -227,23 +245,33 @@ function App(): React.ReactElement {
     }
   }
 
+  const headerTitle = panel === 'trade' ? 'ExileLens KR · 시세' : 'ExileLens KR · 퀘스트';
+  const headerSubtitle = panel === 'trade' ? '아이템 검색 오버레이' : 'POE2 퀘스트 오버레이';
+
   return (
-    <main className="overlay-shell">
+    <main className={`overlay-shell overlay-shell-${panel}`}>
       <header className="overlay-header">
         <div>
-          <strong>ExileLens KR</strong>
-          <span>POE2 한국어 오버레이</span>
+          <strong>{headerTitle}</strong>
+          <span>{headerSubtitle}</span>
         </div>
         <nav>
-          <button onClick={() => setRoute('item')}>시세</button>
-          <button onClick={() => setRoute('quest')}>퀘스트</button>
-          <button onClick={() => setRoute('settings')}>설정</button>
-          <button className="hide-button" onClick={() => void window.exileLens?.hideOverlay?.()}>숨기기</button>
+          {panel === 'quest' ? (
+            <>
+              <button onClick={() => setRoute('quest')}>퀘스트</button>
+              <button onClick={() => setRoute('settings')}>설정</button>
+              <button className="hide-button" onClick={() => void window.exileLens?.hideOverlay?.()}>숨기기</button>
+            </>
+          ) : (
+            <button className="hide-button close-button" aria-label="시세 창 닫기" onClick={() => void window.exileLens?.hideOverlay?.()}>
+              ×
+            </button>
+          )}
         </nav>
       </header>
       <div className="overlay-content" data-overlay-interactive="true">
-        {route === 'item' && <ItemPanel settings={settings} />}
-        {route === 'quest' && (
+        {panel === 'trade' && <ItemPanel settings={settings} />}
+        {panel === 'quest' && route === 'quest' && (
           <QuestPanel
             currentArea={currentArea}
             checklist={checklist}
@@ -256,7 +284,7 @@ function App(): React.ReactElement {
             onRestoreAutomatic={restoreAutomaticAreaDetection}
           />
         )}
-        {route === 'settings' && (
+        {panel === 'quest' && route === 'settings' && (
           <SettingsPanel
             settings={settings}
             diagnostics={diagnostics}

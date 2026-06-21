@@ -1,7 +1,7 @@
-import { app, BrowserWindow, clipboard, ipcMain, Menu, nativeImage, shell, Tray } from 'electron';
-import { existsSync, appendFileSync } from 'node:fs';
+import { app, BrowserWindow, clipboard, ipcMain, Menu, nativeImage, screen, shell, Tray } from 'electron';
+import { existsSync, appendFileSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { createOverlayWindow } from './windows/overlayWindow';
+import { createOverlayWindow, type OverlayPanel } from './windows/overlayWindow';
 import { registerHotkeys, type HotkeyRegistrationResult } from './hotkeys/registerHotkeys';
 import { createAreaWatcher, type AreaWatcher } from './poe/areaWatcher';
 import { createQuestProgressStore } from './poe/questProgressStore';
@@ -19,13 +19,17 @@ import { normalizeAppSettings, shouldWatchClientLog, type AppSettings } from '..
 import { buildClientLogPathCandidates, type ClientLogDiscoveryResult } from '../shared/settings/clientLogDiscovery';
 import type { AppDiagnostics, AppMode } from '../shared/diagnostics/appDiagnostics';
 
-let overlayWindow: BrowserWindow | null = null;
+let questWindow: BrowserWindow | null = null;
+let tradeWindow: BrowserWindow | null = null;
 let tray: Tray | null = null;
 let areaWatcher: AreaWatcher | null = null;
 let questProgress: QuestProgress = { completedObjectiveIds: {} };
 let appSettings: AppSettings = normalizeAppSettings(undefined);
 let hotkeyRegistrations: HotkeyRegistrationResult[] = [];
 let lastAreaState: AreaDetectionState = getDemoAreaDetection();
+let boundsSaveTimer: NodeJS.Timeout | null = null;
+
+type PanelBoundsStore = Partial<Record<OverlayPanel, Electron.Rectangle>>;
 
 function writeAppLog(message: string, details?: unknown): void {
   const payload = details == null ? '' : ` ${safeStringify(details)}`;
@@ -53,11 +57,33 @@ function serializeError(error: unknown): Record<string, string> {
   return { name: 'NonError', message: String(error), stack: '' };
 }
 
+function getPanelWindow(panel: OverlayPanel): BrowserWindow | null {
+  return panel === 'quest' ? questWindow : tradeWindow;
+}
+
+function getWindowPanel(win: BrowserWindow): OverlayPanel | null {
+  if (win === questWindow) return 'quest';
+  if (win === tradeWindow) return 'trade';
+  return null;
+}
+
+function getSenderWindow(event: Electron.IpcMainInvokeEvent): BrowserWindow | null {
+  return BrowserWindow.fromWebContents(event.sender);
+}
+
+function sendToOverlayWindows(channel: string, ...args: unknown[]): void {
+  for (const win of [questWindow, tradeWindow]) {
+    if (win != null && !win.isDestroyed()) {
+      win.webContents.send(channel, ...args);
+    }
+  }
+}
+
 function sendAreaDetected(state: AreaDetectionState): void {
   if (appSettings.manualAreaOverrideId != null && state.detectedFrom !== 'manual_override') return;
   lastAreaState = state;
   writeAppLog('area detected', state);
-  overlayWindow?.webContents.send('quest:area-detected', state);
+  sendToOverlayWindows('quest:area-detected', state);
 }
 
 function sendEffectiveAreaDetected(): void {
@@ -65,18 +91,58 @@ function sendEffectiveAreaDetected(): void {
   sendAreaDetected(manualArea ?? lastAreaState ?? getDemoAreaDetection());
 }
 
-function setOverlayClickThrough(enabled: boolean): void {
-  if (overlayWindow == null || overlayWindow.isDestroyed()) return;
-  overlayWindow.setIgnoreMouseEvents(enabled, { forward: true });
-  writeAppLog('overlay click-through changed', { enabled });
+function setWindowClickThrough(win: BrowserWindow | null, enabled: boolean): void {
+  if (win == null || win.isDestroyed()) return;
+  win.setIgnoreMouseEvents(enabled, { forward: true });
+  writeAppLog('overlay click-through changed', { panel: getWindowPanel(win), enabled });
 }
 
-function hideOverlay(): void {
-  if (overlayWindow == null || overlayWindow.isDestroyed()) return;
-  overlayWindow.setSkipTaskbar(true);
-  overlayWindow.hide();
-  setOverlayClickThrough(true);
+function hideWindow(win: BrowserWindow | null): void {
+  if (win == null || win.isDestroyed()) return;
+  win.setSkipTaskbar(true);
+  win.hide();
+  setWindowClickThrough(win, true);
   updateTrayMenu();
+}
+
+function hidePanel(panel: OverlayPanel): void {
+  hideWindow(getPanelWindow(panel));
+}
+
+function hideAllOverlays(): void {
+  hidePanel('quest');
+  hidePanel('trade');
+}
+
+function showPanelPassive(panel: OverlayPanel): void {
+  const win = getPanelWindow(panel);
+  if (win == null || win.isDestroyed()) return;
+
+  if (panel === 'quest') {
+    win.setAlwaysOnTop(true, 'screen-saver');
+  }
+
+  win.setSkipTaskbar(false);
+  win.showInactive();
+  win.moveTop();
+  setWindowClickThrough(win, true);
+  updateTrayMenu();
+}
+
+function showQuestOverlay(): void {
+  showPanelPassive('quest');
+}
+
+function showTradeOverlay(): void {
+  showPanelPassive('trade');
+}
+
+function toggleQuestOverlay(): void {
+  if (questWindow?.isVisible()) {
+    hidePanel('quest');
+    return;
+  }
+  showQuestOverlay();
 }
 
 function createTrayIconImage(): Electron.NativeImage {
@@ -90,17 +156,24 @@ function createTrayIconImage(): Electron.NativeImage {
 
 function updateTrayMenu(): void {
   if (tray == null) return;
-  const overlayVisible = overlayWindow?.isVisible() === true;
+  const questVisible = questWindow?.isVisible() === true;
+  const tradeVisible = tradeWindow?.isVisible() === true;
   tray.setContextMenu(Menu.buildFromTemplate([
     {
-      label: overlayVisible ? '오버레이 숨기기' : '오버레이 열기',
+      label: questVisible ? '퀘스트 오버레이 숨기기' : '퀘스트 오버레이 열기',
       click: () => {
-        if (overlayVisible) hideOverlay();
-        else showOverlayPassive();
+        if (questVisible) hidePanel('quest');
+        else showQuestOverlay();
       }
     },
-    { label: '퀘스트 열기', click: () => navigateOverlay('quest') },
-    { label: '시세 열기', click: () => navigateOverlay('item') },
+    {
+      label: tradeVisible ? '시세 오버레이 숨기기' : '시세 오버레이 열기',
+      click: () => {
+        if (tradeVisible) hidePanel('trade');
+        else showTradeOverlay();
+      }
+    },
+    { label: '전체 오버레이 숨기기', click: hideAllOverlays },
     { type: 'separator' },
     { label: '종료', click: () => app.quit() }
   ]));
@@ -110,34 +183,74 @@ function createAppTray(): void {
   if (tray != null) return;
   tray = new Tray(createTrayIconImage());
   tray.setToolTip('ExileLens KR 실행 중');
-  tray.on('click', () => showOverlayPassive());
+  tray.on('click', () => showQuestOverlay());
   updateTrayMenu();
   writeAppLog('system tray initialized');
 }
 
-function showOverlayPassive(): void {
-  // Priority: keep POE2 playable while the overlay is visible.
-  // The renderer temporarily disables click-through only when the pointer is over a real control.
-  if (overlayWindow == null) return;
-  overlayWindow.setSkipTaskbar(false);
-  overlayWindow.showInactive();
-  overlayWindow.moveTop();
-  setOverlayClickThrough(true);
-  updateTrayMenu();
+function getBoundsStorePath(): string {
+  return join(app.getPath('userData'), 'panel-bounds.json');
 }
 
-function toggleOverlay(): void {
-  if (overlayWindow?.isVisible()) {
-    hideOverlay();
-    return;
+function loadPanelBounds(): PanelBoundsStore {
+  try {
+    const parsed = JSON.parse(readFileSync(getBoundsStorePath(), 'utf8')) as PanelBoundsStore;
+    return {
+      quest: parsed.quest != null ? ensureBoundsOnDisplay(parsed.quest) : undefined,
+      trade: parsed.trade != null ? ensureBoundsOnDisplay(parsed.trade) : undefined
+    };
+  } catch {
+    return {};
   }
-
-  showOverlayPassive();
 }
 
-function navigateOverlay(route: 'item' | 'quest' | 'settings'): void {
-  showOverlayPassive();
-  overlayWindow?.webContents.send('overlay:navigate', route);
+function savePanelBounds(): void {
+  const bounds: PanelBoundsStore = {};
+  if (questWindow != null && !questWindow.isDestroyed()) bounds.quest = questWindow.getBounds();
+  if (tradeWindow != null && !tradeWindow.isDestroyed()) bounds.trade = tradeWindow.getBounds();
+  try {
+    writeFileSync(getBoundsStorePath(), JSON.stringify(bounds, null, 2), 'utf8');
+  } catch (error) {
+    writeAppLog('failed to save panel bounds', serializeError(error));
+  }
+}
+
+function schedulePanelBoundsSave(): void {
+  if (boundsSaveTimer != null) clearTimeout(boundsSaveTimer);
+  boundsSaveTimer = setTimeout(() => {
+    boundsSaveTimer = null;
+    savePanelBounds();
+  }, 300);
+}
+
+function ensureBoundsOnDisplay(bounds: Electron.Rectangle): Electron.Rectangle {
+  const displays = screen.getAllDisplays();
+  const intersects = displays.some((display) => rectanglesIntersect(bounds, display.workArea));
+  if (intersects) return bounds;
+  const primary = screen.getPrimaryDisplay().workArea;
+  return {
+    width: Math.min(bounds.width, primary.width),
+    height: Math.min(bounds.height, primary.height),
+    x: primary.x + 40,
+    y: primary.y + 40
+  };
+}
+
+function rectanglesIntersect(left: Electron.Rectangle, right: Electron.Rectangle): boolean {
+  return left.x < right.x + right.width && left.x + left.width > right.x && left.y < right.y + right.height && left.y + left.height > right.y;
+}
+
+function attachPanelWindowLifecycle(win: BrowserWindow, panel: OverlayPanel): void {
+  win.on('show', updateTrayMenu);
+  win.on('hide', updateTrayMenu);
+  win.on('moved', schedulePanelBoundsSave);
+  win.on('resized', schedulePanelBoundsSave);
+  win.webContents.once('did-finish-load', () => {
+    writeAppLog('renderer finished load; sending initial state', { panel, appSettings, lastAreaState });
+    win.webContents.send('quest:progress', questProgress);
+    win.webContents.send('settings:changed', appSettings);
+    win.webContents.send('quest:area-detected', lastAreaState);
+  });
 }
 
 function discoverClientLogPath(): ClientLogDiscoveryResult {
@@ -188,9 +301,9 @@ function startAreaWatcher(settings: AppSettings): void {
 
 function registerOverlayHotkeys(): HotkeyRegistrationResult[] {
   hotkeyRegistrations = registerHotkeys({
-    toggleOverlay,
-    showQuestOverlay: () => navigateOverlay('quest'),
-    showItemOverlay: () => navigateOverlay('item')
+    toggleOverlay: toggleQuestOverlay,
+    showQuestOverlay,
+    showItemOverlay: showTradeOverlay
   });
 
   const failed = hotkeyRegistrations.filter((result) => !result.registered);
@@ -217,22 +330,22 @@ async function createApp(): Promise<void> {
   questProgress = normalizeManualQuestProgress(questProgress);
   await progressStore.save(questProgress);
 
-  overlayWindow = createOverlayWindow();
+  const panelBounds = loadPanelBounds();
+  questWindow = createOverlayWindow({ panel: 'quest', bounds: panelBounds.quest });
+  tradeWindow = createOverlayWindow({ panel: 'trade', bounds: panelBounds.trade });
+  attachPanelWindowLifecycle(questWindow, 'quest');
+  attachPanelWindowLifecycle(tradeWindow, 'trade');
   createAppTray();
-  overlayWindow.on('show', updateTrayMenu);
-  overlayWindow.on('hide', updateTrayMenu);
-  overlayWindow.webContents.once('did-finish-load', () => {
-    writeAppLog('renderer finished load; sending initial state', { appSettings, lastAreaState });
-    overlayWindow?.webContents.send('quest:progress', questProgress);
-    overlayWindow?.webContents.send('settings:changed', appSettings);
-    overlayWindow?.webContents.send('quest:area-detected', lastAreaState);
-  });
 
   registerOverlayHotkeys();
 
-  ipcMain.handle('overlay:show', showOverlayPassive);
-  ipcMain.handle('overlay:hide', hideOverlay);
-  ipcMain.handle('overlay:set-click-through', (_event, enabled: boolean) => setOverlayClickThrough(enabled));
+  ipcMain.handle('overlay:show', (event) => {
+    const sender = getSenderWindow(event);
+    const panel = sender != null ? getWindowPanel(sender) : null;
+    showPanelPassive(panel ?? 'quest');
+  });
+  ipcMain.handle('overlay:hide', (event) => hideWindow(getSenderWindow(event)));
+  ipcMain.handle('overlay:set-click-through', (event, enabled: boolean) => setWindowClickThrough(getSenderWindow(event), enabled));
   ipcMain.handle('external:open', async (_event, url: string) => {
     if (!isAllowedExternalUrl(url)) throw new Error('Blocked external URL');
     await shell.openExternal(url);
@@ -251,11 +364,11 @@ async function createApp(): Promise<void> {
     return captureCopiedItemText({
       ...deps,
       requestCopy: async () => {
-        hideOverlay();
+        hidePanel('trade');
         await wait(120);
         await requestCopy();
         await wait(120);
-        showOverlayPassive();
+        showTradeOverlay();
       }
     });
   });
@@ -265,7 +378,7 @@ async function createApp(): Promise<void> {
     appSettings = normalizeSettingsForKnownAreas(nextSettings);
     await settingsStore.save(appSettings);
     startAreaWatcher(appSettings);
-    overlayWindow?.webContents.send('settings:changed', appSettings);
+    sendToOverlayWindows('settings:changed', appSettings);
     sendEffectiveAreaDetected();
     return appSettings;
   });
@@ -273,7 +386,7 @@ async function createApp(): Promise<void> {
   ipcMain.handle('quest:update-progress', async (_event, nextProgress: QuestProgress) => {
     questProgress = normalizeManualQuestProgress(nextProgress);
     await progressStore.save(questProgress);
-    overlayWindow?.webContents.send('quest:progress', questProgress);
+    sendToOverlayWindows('quest:progress', questProgress);
     return questProgress;
   });
 
@@ -330,7 +443,7 @@ if (!hasSingleInstanceLock) {
   app.quit();
 } else {
   app.on('second-instance', () => {
-    showOverlayPassive();
+    showQuestOverlay();
   });
 
   app.whenReady().then(createApp).catch((error) => {
@@ -348,15 +461,16 @@ process.on('unhandledRejection', (reason) => {
 });
 
 app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') app.quit();
+  // Resident tray app: keep running even when all overlay windows are hidden/closed.
 });
 
 app.on('activate', () => {
-  if (BrowserWindow.getAllWindows().length === 0) void createApp();
+  showQuestOverlay();
 });
 
 app.on('will-quit', () => {
   areaWatcher?.stop();
+  savePanelBounds();
   // globalShortcut cleanup is handled in registerHotkeys
 });
 
