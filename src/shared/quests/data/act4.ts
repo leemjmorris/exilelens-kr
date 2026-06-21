@@ -12,7 +12,8 @@ export const act4Areas: AreaDefinition[] = [
   { id: 'act4-isle-of-kin', act: 4, nameKo: '친족의 섬', nameEn: 'Isle of Kin', logNamesKo: ['친족의 섬', 'Isle of Kin'], isTown: false, hasMapThumbnail: false, needsVerification: true, guideStepIds: ['act4-land-of-the-kin-isle', 'act4-blind-beast'] },
   { id: 'act4-volcanic-warrens', act: 4, nameKo: '화산 굴', nameEn: 'Volcanic Warrens', logNamesKo: ['화산 굴', 'Volcanic Warrens'], isTown: false, hasMapThumbnail: false, needsVerification: true, guideStepIds: ['act4-land-of-the-kin-krutog', 'act4-trial-ancestors-eye'] },
   { id: 'act4-shrike-island', act: 4, nameKo: '쉬라이크 섬', nameEn: 'Shrike Island', logNamesKo: ['쉬라이크 섬', '때까치 섬', 'Shrike Island'], isTown: false, hasMapThumbnail: false, needsVerification: true, guideStepIds: ['act4-shrike-island-boss'] },
-  { id: 'act4-whakapanu-island', act: 4, nameKo: '와카파누 섬', nameEn: 'Whakapanu Island', logNamesKo: ['와카파누 섬', '응가카누', 'Whakapanu Island'], areaIdAliases: ['g4_11_1a'], isTown: false, hasMapThumbnail: false, needsVerification: true, guideStepIds: ['act4-whakapanu-diamora', 'act4-great-white-one', 'act4-siren-pearl', 'act4-tribal-medicine'] },
+  { id: 'act4-whakapanu-island', act: 4, nameKo: '와카파누 섬', nameEn: 'Whakapanu Island', logNamesKo: ['와카파누 섬', 'Whakapanu Island'], isTown: false, hasMapThumbnail: false, needsVerification: true, guideStepIds: ['act4-whakapanu-diamora', 'act4-great-white-one', 'act4-siren-pearl', 'act4-tribal-medicine'] },
+  { id: 'act4-ngakanu', act: 4, nameKo: '응가카누', nameEn: 'Ngakanu', logNamesKo: ['응가카누', 'Ngakanu'], areaIdAliases: ['g4_11_1a', 'g4_11_1b'], isTown: false, hasMapThumbnail: false, needsVerification: true, guideStepIds: ['act4-abyss'] },
   { id: 'act4-plunders-point', act: 4, nameKo: '약탈자의 거점', nameEn: "Plunder's Point", logNamesKo: ['약탈자의 거점', '약탈의 거점', "Plunder's Point"], isTown: false, hasMapThumbnail: false, needsVerification: true, guideStepIds: ['act4-forgotten-bounty', 'act4-lonely-outpost'] },
   { id: 'act4-halls-of-the-dead', act: 4, nameKo: '망자의 전당', nameEn: 'Halls of the Dead', logNamesKo: ['망자의 전당', 'Halls of the Dead'], isTown: false, hasMapThumbnail: false, needsVerification: true, guideStepIds: ['act4-ngamahu-test', 'act4-tasalio-test', 'act4-tawhoa-test', 'act4-navali-rest'] },
   { id: 'act4-trial-of-the-ancestors', act: 4, nameKo: '조상들의 시련', nameEn: 'Trial of the Ancestors', logNamesKo: ['조상들의 시련', '선조들의 심판', 'Trial of the Ancestors'], isTown: false, hasMapThumbnail: false, needsVerification: true, guideStepIds: ['act4-trial-ancestors-complete'] },
@@ -59,6 +60,7 @@ export const act4Checklists: AreaChecklist[] = [
     ['act4-siren-pearl', '사이렌 진주: 사이렌 진주 관련 목표/보상 확인', 'optional', '4장 한국 서버 퀘스트 목록 기준'],
     ['act4-tribal-medicine', '부족의 의술: 거대한 흰 존재/부족의 심장 관련 선택 진행', 'optional', 'Ngakanu/Kaimana 선택 퀘스트']
   ]),
+  objective('act4-ngakanu', 'act4-abyss', '심연: 응가카누에서 심연 퀘스트 목표 확인', 'required', '한국 클라이언트 응가카누에서 확인된 퀘스트'),
   objectives('act4-plunders-point', [
     ['act4-forgotten-bounty', '잊힌 하사품: 찢어진 지도 조각/탐험 보상 진행', 'optional', 'Plunder’s Point 선택 퀘스트'],
     ['act4-lonely-outpost', '외딴 초소: 약탈의 거점에서 외딴 초소 퀘스트 목표 확인', 'optional', '한국 클라이언트 약탈의 거점에서 확인된 선택 퀘스트']
@@ -108,7 +110,7 @@ function getAutoCompleteRules(areaId: string, objectiveId: string) {
       }
     ];
   }
-  if (areaId === 'act4-whakapanu-island' && objectiveId === 'act4-great-white-one') {
+  if (areaId === 'act4-ngakanu' && objectiveId === 'act4-abyss') {
     return [
       {
         type: 'reward-acquired' as const,

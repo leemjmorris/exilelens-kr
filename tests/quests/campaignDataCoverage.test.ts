@@ -109,25 +109,26 @@ describe('campaign quest data coverage', () => {
     ]);
   });
 
-  it('maps Ngakanu Client.txt scene/code to Whakapanu Island checklist so completed Great White One stays visible', () => {
-    const whakapanu = areaDefinitions.find((area) => area.id === 'act4-whakapanu-island');
-    expect(whakapanu?.logNamesKo).toContain('응가카누');
-    expect(whakapanu?.areaIdAliases).toContain('g4_11_1a');
+  it('maps Ngakanu Client.txt scene/code to its own Abyss quest checklist', () => {
+    const ngakanu = areaDefinitions.find((area) => area.id === 'act4-ngakanu');
+    expect(ngakanu?.nameKo).toBe('응가카누');
+    expect(ngakanu?.logNamesKo).toContain('응가카누');
+    expect(ngakanu?.areaIdAliases).toEqual(expect.arrayContaining(['g4_11_1a', 'g4_11_1b']));
 
     const byScene = matchDetectedArea('응가카누', areaDefinitions);
     expect(byScene).toEqual({
-      areaId: 'act4-whakapanu-island',
+      areaId: 'act4-ngakanu',
       act: 4,
-      areaNameKo: '와카파누 섬',
+      areaNameKo: '응가카누',
       detectedFrom: 'client_log',
       confidence: 'high'
     });
 
-    const byCode = matchDetectedArea('G4_11_1a', areaDefinitions);
-    expect(byCode.areaId).toBe('act4-whakapanu-island');
+    const byCode = matchDetectedArea('G4_11_1b', areaDefinitions);
+    expect(byCode.areaId).toBe('act4-ngakanu');
 
-    const checklist = areaChecklists.find((entry) => entry.areaId === 'act4-whakapanu-island');
-    expect(checklist?.objectives.some((objective) => objective.id === 'act4-great-white-one')).toBe(true);
+    const checklist = areaChecklists.find((entry) => entry.areaId === 'act4-ngakanu');
+    expect(checklist?.objectives.map((objective) => objective.labelKo)).toContain('심연: 응가카누에서 심연 퀘스트 목표 확인');
   });
 
   it('shows Plunder\'s Point Korean alias and Lonely Outpost objective in the current area checklist', () => {

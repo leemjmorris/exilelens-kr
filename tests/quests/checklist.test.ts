@@ -80,4 +80,18 @@ describe('checklist utilities', () => {
     expect(normalized.completedObjectiveIds['act3-utzaal']).toEqual(['act3-legacy-utzaal']);
     expect(isObjectiveCompleted(normalized, 'act3-utzaal', 'act3-treasures-utzaal')).toBe(false);
   });
+
+  it('migrates legacy Ngakanu reward completion from the wrong Whakapanu objective to Abyss', () => {
+    const normalized = normalizeManualQuestProgress({
+      completedObjectiveIds: {},
+      autoObjectiveStates: {
+        'act4-whakapanu-island': {
+          'act4-great-white-one': true
+        }
+      }
+    });
+
+    expect(isObjectiveCompleted(normalized, 'act4-ngakanu', 'act4-abyss')).toBe(true);
+    expect(isObjectiveCompleted(normalized, 'act4-whakapanu-island', 'act4-great-white-one')).toBe(false);
+  });
 });

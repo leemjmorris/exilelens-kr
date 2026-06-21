@@ -110,6 +110,8 @@ export function toggleObjectiveCompletion(progress: QuestProgress, areaId: strin
 export function normalizeManualQuestProgress(progress: QuestProgress): QuestProgress {
   const manualObjectiveStates = cloneObjectiveStates(progress.manualObjectiveStates) ?? {};
   const autoObjectiveStates = cloneObjectiveStates(progress.autoObjectiveStates) ?? {};
+  migrateLegacyNgakanuRewardCompletion(manualObjectiveStates);
+  migrateLegacyNgakanuRewardCompletion(autoObjectiveStates);
   const completedObjectiveIds: Record<string, string[]> = {};
   const areaIds = new Set([...Object.keys(autoObjectiveStates), ...Object.keys(manualObjectiveStates)]);
 
@@ -189,7 +191,20 @@ function cloneObjectiveStates(
   states: Record<string, Record<string, boolean>> | undefined
 ): Record<string, Record<string, boolean>> | undefined {
   if (states == null) return undefined;
-  return Object.fromEntries(Object.entries(states).map(([areaId, areaStates]) => [areaId, { ...areaStates }]));
+  return Object.fromEntries(Object.entries(states).map(([areaId, objectives]) => [areaId, { ...objectives }]));
+}
+
+function migrateLegacyNgakanuRewardCompletion(states: Record<string, Record<string, boolean>>): void {
+  const legacyCompleted = states['act4-whakapanu-island']?.['act4-great-white-one'];
+  if (legacyCompleted !== true) return;
+  states['act4-ngakanu'] = {
+    ...(states['act4-ngakanu'] ?? {}),
+    'act4-abyss': true
+  };
+  states['act4-whakapanu-island'] = {
+    ...(states['act4-whakapanu-island'] ?? {}),
+    'act4-great-white-one': false
+  };
 }
 
 function getActSortOrder(act: number): number {
