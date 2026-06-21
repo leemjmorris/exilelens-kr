@@ -16,6 +16,7 @@
     "package": "npm run build && electron-builder --win dir --publish=never",
     "dist": "npm run build && electron-builder --win zip --publish=never",
     "package:smoke": "node scripts/smoke-package.mjs",
+    "quest:coverage": "node scripts/audit-client-log-coverage.mjs",
     "ci": "npm run typecheck && npm test && npm run build && npm run package:smoke",
     "audit:low": "npm audit --audit-level=low",
     "dist:smoke": "npm run dist && npm run package:smoke"
