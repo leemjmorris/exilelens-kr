@@ -131,6 +131,28 @@ describe('campaign quest data coverage', () => {
     expect(checklist?.objectives.map((objective) => objective.labelKo)).toContain('심연: 응가카누에서 심연 퀘스트 목표 확인');
   });
 
+  it('maps Tribal Heart Client.txt scene/code to its Tribal Medicine quest checklist', () => {
+    const tribalHeart = areaDefinitions.find((area) => area.id === 'act4-tribal-heart');
+    expect(tribalHeart?.nameKo).toBe('부족의 심장부');
+    expect(tribalHeart?.logNamesKo).toContain('부족의 심장부');
+    expect(tribalHeart?.areaIdAliases).toContain('g4_11_2');
+
+    const byScene = matchDetectedArea('부족의 심장부', areaDefinitions);
+    expect(byScene).toEqual({
+      areaId: 'act4-tribal-heart',
+      act: 4,
+      areaNameKo: '부족의 심장부',
+      detectedFrom: 'client_log',
+      confidence: 'high'
+    });
+
+    const byCode = matchDetectedArea('G4_11_2', areaDefinitions);
+    expect(byCode.areaId).toBe('act4-tribal-heart');
+
+    const checklist = areaChecklists.find((entry) => entry.areaId === 'act4-tribal-heart');
+    expect(checklist?.objectives.map((objective) => objective.labelKo)).toContain('부족의 의술: 부족의 심장부에서 카이마나와 부족의 심장 목표 확인');
+  });
+
   it('shows Plunder\'s Point Korean alias and Lonely Outpost objective in the current area checklist', () => {
     const plundersPoint = areaDefinitions.find((area) => area.id === 'act4-plunders-point');
     const checklist = areaChecklists.find((entry) => entry.areaId === 'act4-plunders-point');
