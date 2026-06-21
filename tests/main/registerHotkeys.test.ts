@@ -23,7 +23,8 @@ describe('registerHotkeys', () => {
       {
         toggleOverlay: vi.fn(),
         showItemOverlay: vi.fn(),
-        showQuestOverlay: vi.fn()
+        showQuestOverlay: vi.fn(),
+        showQuestDetailOverlay: vi.fn()
       },
       registrar
     );
@@ -34,7 +35,7 @@ describe('registerHotkeys', () => {
       { accelerator: 'F6', action: 'toggleOverlay', registered: true },
       { accelerator: 'Ctrl+Shift+D', action: 'showItemOverlay', registered: true },
       { accelerator: 'Ctrl+Shift+Q', action: 'showQuestOverlay', registered: true },
-      { accelerator: 'Alt+O', action: 'toggleOverlay', registered: true },
+      { accelerator: 'Alt+O', action: 'showQuestDetailOverlay', registered: true },
       { accelerator: 'Alt+D', action: 'showItemOverlay', registered: true },
       { accelerator: 'Alt+Q', action: 'showQuestOverlay', registered: true }
     ]);
@@ -47,7 +48,8 @@ describe('registerHotkeys', () => {
       {
         toggleOverlay: vi.fn(),
         showItemOverlay: vi.fn(),
-        showQuestOverlay: vi.fn()
+        showQuestOverlay: vi.fn(),
+        showQuestDetailOverlay: vi.fn()
       },
       registrar
     );

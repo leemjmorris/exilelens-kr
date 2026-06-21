@@ -5,7 +5,7 @@ export interface ShortcutRegistrar {
   register: (accelerator: string, callback: () => void) => boolean;
 }
 
-export type HotkeyAction = 'toggleOverlay' | 'showItemOverlay' | 'showQuestOverlay';
+export type HotkeyAction = 'toggleOverlay' | 'showItemOverlay' | 'showQuestOverlay' | 'showQuestDetailOverlay';
 
 export interface HotkeyRegistrationResult {
   accelerator: string;
@@ -17,6 +17,7 @@ interface HotkeyHandlers {
   toggleOverlay: () => void;
   showItemOverlay: () => void;
   showQuestOverlay: () => void;
+  showQuestDetailOverlay: () => void;
 }
 
 // Primary hotkeys follow the lower-conflict patterns used by other POE2 overlays.
@@ -25,7 +26,7 @@ const HOTKEYS: Array<{ accelerator: string; action: HotkeyAction }> = [
   { accelerator: 'F6', action: 'toggleOverlay' },
   { accelerator: 'Ctrl+Shift+D', action: 'showItemOverlay' },
   { accelerator: 'Ctrl+Shift+Q', action: 'showQuestOverlay' },
-  { accelerator: 'Alt+O', action: 'toggleOverlay' },
+  { accelerator: 'Alt+O', action: 'showQuestDetailOverlay' },
   { accelerator: 'Alt+D', action: 'showItemOverlay' },
   { accelerator: 'Alt+Q', action: 'showQuestOverlay' }
 ];

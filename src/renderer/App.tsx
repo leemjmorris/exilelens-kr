@@ -23,18 +23,23 @@ import { FALLBACK_POE2_TRADE_LEAGUES, type TradeLeague } from '../shared/trade/l
 import './styles/globals.css';
 
 type Route = 'item' | 'quest' | 'settings';
-type OverlayPanel = 'quest' | 'trade';
+type OverlayPanel = 'quest-area' | 'quest-required' | 'quest-optional' | 'quest-detail' | 'trade';
 type QuestView = 'current' | 'all';
 
 const LOCAL_PROGRESS_KEY = 'exilelens.questProgress';
 
 function getInitialPanel(): OverlayPanel {
   const panel = new URLSearchParams(window.location.search).get('panel');
-  return panel === 'trade' ? 'trade' : 'quest';
+  if (panel === 'trade' || panel === 'quest-area' || panel === 'quest-required' || panel === 'quest-optional' || panel === 'quest-detail') return panel;
+  return 'quest-area';
 }
 
 function getInitialRoute(panel: OverlayPanel): Route {
   return panel === 'trade' ? 'item' : 'quest';
+}
+
+function isQuestHudPanel(panel: OverlayPanel): panel is 'quest-area' | 'quest-required' | 'quest-optional' {
+  return panel === 'quest-area' || panel === 'quest-required' || panel === 'quest-optional';
 }
 
 function App(): React.ReactElement {
@@ -84,7 +89,7 @@ function App(): React.ReactElement {
       if (!(target instanceof Element)) return false;
       // Capture only over the visible overlay surface so wheel scrolling works across cards/content.
       // Transparent space outside the shell stays click-through to POE2.
-      return target.closest('.overlay-shell') != null;
+      return target.closest('.overlay-shell, .quest-hud-shell') != null;
     }
 
     function applyClickThrough(nextClickThrough: boolean): void {
@@ -118,7 +123,7 @@ function App(): React.ReactElement {
 
   useEffect(() => {
     return window.exileLens?.onNavigate((nextRoute) => {
-      if (panel === 'trade') {
+      if (panel === 'trade' || isQuestHudPanel(panel)) {
         setRoute('item');
         return;
       }
@@ -246,8 +251,23 @@ function App(): React.ReactElement {
     }
   }
 
-  const headerTitle = panel === 'trade' ? 'ExileLens KR · 시세' : 'ExileLens KR · 퀘스트';
-  const headerSubtitle = panel === 'trade' ? '아이템 검색 오버레이' : 'POE2 퀘스트 오버레이';
+  if (isQuestHudPanel(panel)) {
+    return (
+      <main className={`quest-hud-shell quest-hud-shell-${panel}`} data-overlay-interactive="true">
+        <QuestHudPanel
+          panel={panel}
+          currentArea={currentArea}
+          checklist={checklist}
+          progress={progress}
+          onToggleObjective={toggleObjective}
+        />
+        <QuestResizeGrip />
+      </main>
+    );
+  }
+
+  const headerTitle = panel === 'trade' ? 'ExileLens KR · 시세' : 'ExileLens KR · 상세';
+  const headerSubtitle = panel === 'trade' ? '아이템 검색 오버레이' : '전체 현황 · 지역 보정 · 설정';
 
   return (
     <main className={`overlay-shell overlay-shell-${panel}`}>
@@ -257,7 +277,7 @@ function App(): React.ReactElement {
           <span>{headerSubtitle}</span>
         </div>
         <nav>
-          {panel === 'quest' ? (
+          {panel === 'quest-detail' ? (
             <>
               <button onClick={() => setRoute('quest')}>퀘스트</button>
               <button onClick={() => setRoute('settings')}>설정</button>
@@ -272,7 +292,7 @@ function App(): React.ReactElement {
       </header>
       <div className="overlay-content" data-overlay-interactive="true">
         {panel === 'trade' && <ItemPanel settings={settings} />}
-        {panel === 'quest' && route === 'quest' && (
+        {panel === 'quest-detail' && route === 'quest' && (
           <QuestPanel
             currentArea={currentArea}
             checklist={checklist}
@@ -285,7 +305,7 @@ function App(): React.ReactElement {
             onRestoreAutomatic={restoreAutomaticAreaDetection}
           />
         )}
-        {panel === 'quest' && route === 'settings' && (
+        {panel === 'quest-detail' && route === 'settings' && (
           <SettingsPanel
             settings={settings}
             diagnostics={diagnostics}
@@ -295,8 +315,66 @@ function App(): React.ReactElement {
           />
         )}
       </div>
-      {panel === 'quest' ? <QuestResizeGrip /> : null}
+      {panel === 'quest-detail' ? <QuestResizeGrip /> : null}
     </main>
+  );
+}
+
+function QuestHudPanel({
+  panel,
+  currentArea,
+  checklist,
+  progress,
+  onToggleObjective
+}: {
+  panel: 'quest-area' | 'quest-required' | 'quest-optional';
+  currentArea: AreaDetectionState;
+  checklist: ReturnType<typeof findChecklistForArea>;
+  progress: QuestProgress;
+  onToggleObjective: (areaId: string, objectiveId: string) => Promise<void>;
+}): React.ReactElement {
+  const grouped = checklist == null ? { required: [], optional: [] } : groupChecklistObjectives(checklist.objectives);
+  const requiredIncompleteCount = grouped.required.filter((objective) =>
+    checklist == null ? false : !isObjectiveCompleted(progress, checklist.areaId, objective.id)
+  ).length;
+  const optionalIncompleteCount = grouped.optional.filter((objective) =>
+    checklist == null ? false : !isObjectiveCompleted(progress, checklist.areaId, objective.id)
+  ).length;
+
+  if (panel === 'quest-area') {
+    return (
+      <section className="quest-hud-widget quest-hud-widget-area">
+        <div className="hud-drag-strip" aria-hidden="true" />
+        <div className="quest-hud-header">
+          <div>
+            <span className="hud-act-label">{currentArea.act != null ? `ACT ${currentArea.act}` : 'AREA'}</span>
+            <h1>{currentArea.areaNameKo ?? '지역 미감지'}</h1>
+          </div>
+          <span className={`hud-source-dot hud-source-${currentArea.confidence}`} title={`신뢰도: ${currentArea.confidence}`} />
+        </div>
+        <div className="quest-hud-summary" aria-label="현재 지역 미완료 요약">
+          <span className={requiredIncompleteCount > 0 ? 'required-badge required-alert' : 'required-badge'}>필수 {requiredIncompleteCount}</span>
+          <span className="optional-badge">선택 {optionalIncompleteCount}</span>
+        </div>
+      </section>
+    );
+  }
+
+  const objectives = panel === 'quest-required' ? grouped.required : grouped.optional;
+  const title = panel === 'quest-required' ? '필수' : '선택';
+
+  return (
+    <section className="quest-hud-widget quest-hud-widget-list">
+      <div className="hud-drag-strip" aria-hidden="true" />
+      <ChecklistGroup
+        title={title}
+        areaId={checklist?.areaId ?? 'unknown'}
+        objectives={objectives}
+        progress={progress}
+        onToggleObjective={onToggleObjective}
+        compact
+      />
+    </section>
   );
 }
 

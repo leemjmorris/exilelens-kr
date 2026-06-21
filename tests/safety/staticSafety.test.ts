@@ -68,7 +68,10 @@ describe('static safety guardrails', () => {
 
     expect(mainSource).toContain('new Tray(');
     expect(mainSource).toContain('createAppTray()');
-    expect(mainSource).toContain("questWindow = createOverlayWindow({ panel: 'quest'");
+    expect(mainSource).toContain("questAreaWindow = createOverlayWindow({ panel: 'quest-area'");
+    expect(mainSource).toContain("questRequiredWindow = createOverlayWindow({ panel: 'quest-required'");
+    expect(mainSource).toContain("questOptionalWindow = createOverlayWindow({ panel: 'quest-optional'");
+    expect(mainSource).toContain("questDetailWindow = createOverlayWindow({ panel: 'quest-detail'");
     expect(mainSource).toContain("tradeWindow = createOverlayWindow({ panel: 'trade'");
     expect(mainSource).toContain('win.setSkipTaskbar(false)');
     expect(mainSource).toContain('win.setSkipTaskbar(true)');
@@ -78,12 +81,23 @@ describe('static safety guardrails', () => {
     expect(windowSource).toContain('show: false');
     expect(windowSource).toContain('skipTaskbar: true');
     expect(windowSource).toContain('resizable: true');
-    expect(windowSource).toContain("alwaysOnTop: options.panel === 'quest'");
+    expect(windowSource).toContain('alwaysOnTop: isQuestPanel(options.panel)');
+    expect(windowSource).toContain("'quest-area'");
+    expect(windowSource).toContain("'quest-required'");
+    expect(windowSource).toContain("'quest-optional'");
     expect(appSource).toContain("panel === 'trade'");
     expect(appSource).toContain('aria-label="시세 창 닫기"');
     expect(appSource).toContain('QuestResizeGrip');
     expect(appSource).toContain('resizeOverlayBy');
     expect(appSource).toContain('aria-label="퀘스트 창 크기 조절"');
+    expect(appSource).toContain('quest-hud-shell');
+    expect(appSource).toContain('QuestHudPanel');
+    expect(appSource).toContain('quest-hud-widget-area');
+    expect(appSource).toContain('quest-hud-widget-list');
+    expect(appSource).toContain('hud-drag-strip');
+    expect(cssSource).toContain('.quest-hud-shell');
+    expect(cssSource).toContain('.quest-hud-widget');
+    expect(cssSource).toContain('.hud-drag-strip');
     expect(cssSource).toContain('-webkit-app-region: drag');
     expect(cssSource).toContain('-webkit-app-region: no-drag');
     expect(cssSource).toContain('.quest-resize-grip');

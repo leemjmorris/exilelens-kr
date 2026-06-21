@@ -1,7 +1,7 @@
 import { BrowserWindow, type Rectangle } from 'electron';
 import { join } from 'node:path';
 
-export type OverlayPanel = 'quest' | 'trade';
+export type OverlayPanel = 'quest-area' | 'quest-required' | 'quest-optional' | 'quest-detail' | 'trade';
 
 export interface OverlayPanelWindowOptions {
   panel: OverlayPanel;
@@ -9,27 +9,35 @@ export interface OverlayPanelWindowOptions {
 }
 
 const DEFAULT_BOUNDS: Record<OverlayPanel, Pick<Rectangle, 'width' | 'height'>> = {
-  quest: { width: 520, height: 760 },
+  'quest-area': { width: 260, height: 112 },
+  'quest-required': { width: 420, height: 220 },
+  'quest-optional': { width: 420, height: 180 },
+  'quest-detail': { width: 720, height: 760 },
   trade: { width: 720, height: 680 }
 };
 
-export function createOverlayWindow(options: OverlayPanelWindowOptions = { panel: 'quest' }): BrowserWindow {
+function isQuestPanel(panel: OverlayPanel): boolean {
+  return panel.startsWith('quest-');
+}
+
+export function createOverlayWindow(options: OverlayPanelWindowOptions): BrowserWindow {
   const defaults = DEFAULT_BOUNDS[options.panel];
+  const isHudPanel = options.panel === 'quest-area' || options.panel === 'quest-required' || options.panel === 'quest-optional';
   const win = new BrowserWindow({
     width: options.bounds?.width ?? defaults.width,
     height: options.bounds?.height ?? defaults.height,
     x: options.bounds?.x,
     y: options.bounds?.y,
-    minWidth: options.panel === 'quest' ? 380 : 480,
-    minHeight: options.panel === 'quest' ? 460 : 420,
+    minWidth: isHudPanel ? 180 : options.panel === 'trade' ? 480 : 380,
+    minHeight: isHudPanel ? 72 : options.panel === 'trade' ? 420 : 460,
     show: false,
     frame: false,
     transparent: true,
     resizable: true,
     movable: true,
-    alwaysOnTop: options.panel === 'quest',
+    alwaysOnTop: isQuestPanel(options.panel),
     skipTaskbar: true,
-    title: options.panel === 'quest' ? 'ExileLens KR - Quests' : 'ExileLens KR - Trade',
+    title: options.panel === 'trade' ? 'ExileLens KR - Trade' : 'ExileLens KR - Quests',
     webPreferences: {
       preload: join(__dirname, '../preload/index.cjs'),
       contextIsolation: true,
@@ -37,7 +45,7 @@ export function createOverlayWindow(options: OverlayPanelWindowOptions = { panel
     }
   });
 
-  if (options.panel === 'quest') {
+  if (isQuestPanel(options.panel)) {
     win.setAlwaysOnTop(true, 'screen-saver');
   }
 

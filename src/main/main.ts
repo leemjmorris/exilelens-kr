@@ -19,7 +19,11 @@ import { normalizeAppSettings, shouldWatchClientLog, type AppSettings } from '..
 import { buildClientLogPathCandidates, type ClientLogDiscoveryResult } from '../shared/settings/clientLogDiscovery';
 import type { AppDiagnostics, AppMode } from '../shared/diagnostics/appDiagnostics';
 
-let questWindow: BrowserWindow | null = null;
+const QUEST_HUD_PANELS = ['quest-area', 'quest-required', 'quest-optional'] as const;
+let questAreaWindow: BrowserWindow | null = null;
+let questRequiredWindow: BrowserWindow | null = null;
+let questOptionalWindow: BrowserWindow | null = null;
+let questDetailWindow: BrowserWindow | null = null;
 let tradeWindow: BrowserWindow | null = null;
 let tray: Tray | null = null;
 let areaWatcher: AreaWatcher | null = null;
@@ -58,11 +62,26 @@ function serializeError(error: unknown): Record<string, string> {
 }
 
 function getPanelWindow(panel: OverlayPanel): BrowserWindow | null {
-  return panel === 'quest' ? questWindow : tradeWindow;
+  if (panel === 'quest-area') return questAreaWindow;
+  if (panel === 'quest-required') return questRequiredWindow;
+  if (panel === 'quest-optional') return questOptionalWindow;
+  if (panel === 'quest-detail') return questDetailWindow;
+  return tradeWindow;
+}
+
+function getQuestHudWindows(): BrowserWindow[] {
+  return [questAreaWindow, questRequiredWindow, questOptionalWindow].filter((win): win is BrowserWindow => win != null && !win.isDestroyed());
+}
+
+function getAllOverlayWindows(): BrowserWindow[] {
+  return [questAreaWindow, questRequiredWindow, questOptionalWindow, questDetailWindow, tradeWindow].filter((win): win is BrowserWindow => win != null && !win.isDestroyed());
 }
 
 function getWindowPanel(win: BrowserWindow): OverlayPanel | null {
-  if (win === questWindow) return 'quest';
+  if (win === questAreaWindow) return 'quest-area';
+  if (win === questRequiredWindow) return 'quest-required';
+  if (win === questOptionalWindow) return 'quest-optional';
+  if (win === questDetailWindow) return 'quest-detail';
   if (win === tradeWindow) return 'trade';
   return null;
 }
@@ -72,10 +91,8 @@ function getSenderWindow(event: Electron.IpcMainInvokeEvent): BrowserWindow | nu
 }
 
 function sendToOverlayWindows(channel: string, ...args: unknown[]): void {
-  for (const win of [questWindow, tradeWindow]) {
-    if (win != null && !win.isDestroyed()) {
-      win.webContents.send(channel, ...args);
-    }
+  for (const win of getAllOverlayWindows()) {
+    win.webContents.send(channel, ...args);
   }
 }
 
@@ -109,8 +126,13 @@ function hidePanel(panel: OverlayPanel): void {
   hideWindow(getPanelWindow(panel));
 }
 
+function hideQuestHudOverlay(): void {
+  for (const panel of QUEST_HUD_PANELS) hidePanel(panel);
+}
+
 function hideAllOverlays(): void {
-  hidePanel('quest');
+  hideQuestHudOverlay();
+  hidePanel('quest-detail');
   hidePanel('trade');
 }
 
@@ -118,8 +140,9 @@ function resizeWindowBy(win: BrowserWindow | null, deltaX: number, deltaY: numbe
   if (win == null || win.isDestroyed()) return;
   const panel = getWindowPanel(win);
   const bounds = win.getBounds();
-  const minWidth = panel === 'trade' ? 480 : 380;
-  const minHeight = panel === 'trade' ? 420 : 460;
+  const isHudPanel = panel === 'quest-area' || panel === 'quest-required' || panel === 'quest-optional';
+  const minWidth = isHudPanel ? 180 : panel === 'trade' ? 480 : 380;
+  const minHeight = isHudPanel ? 72 : panel === 'trade' ? 420 : 460;
   const nextBounds = {
     ...bounds,
     width: Math.max(minWidth, Math.round(bounds.width + deltaX)),
@@ -133,7 +156,7 @@ function showPanelPassive(panel: OverlayPanel): void {
   const win = getPanelWindow(panel);
   if (win == null || win.isDestroyed()) return;
 
-  if (panel === 'quest') {
+  if (panel.startsWith('quest-')) {
     win.setAlwaysOnTop(true, 'screen-saver');
   }
 
@@ -145,7 +168,11 @@ function showPanelPassive(panel: OverlayPanel): void {
 }
 
 function showQuestOverlay(): void {
-  showPanelPassive('quest');
+  for (const panel of QUEST_HUD_PANELS) showPanelPassive(panel);
+}
+
+function showQuestDetailOverlay(): void {
+  showPanelPassive('quest-detail');
 }
 
 function showTradeOverlay(): void {
@@ -153,8 +180,8 @@ function showTradeOverlay(): void {
 }
 
 function toggleQuestOverlay(): void {
-  if (questWindow?.isVisible()) {
-    hidePanel('quest');
+  if (getQuestHudWindows().some((win) => win.isVisible())) {
+    hideQuestHudOverlay();
     return;
   }
   showQuestOverlay();
@@ -171,13 +198,14 @@ function createTrayIconImage(): Electron.NativeImage {
 
 function updateTrayMenu(): void {
   if (tray == null) return;
-  const questVisible = questWindow?.isVisible() === true;
+  const questVisible = getQuestHudWindows().some((win) => win.isVisible());
+  const questDetailVisible = questDetailWindow?.isVisible() === true;
   const tradeVisible = tradeWindow?.isVisible() === true;
   tray.setContextMenu(Menu.buildFromTemplate([
     {
       label: questVisible ? '퀘스트 오버레이 숨기기' : '퀘스트 오버레이 열기',
       click: () => {
-        if (questVisible) hidePanel('quest');
+        if (questVisible) hideQuestHudOverlay();
         else showQuestOverlay();
       }
     },
@@ -186,6 +214,13 @@ function updateTrayMenu(): void {
       click: () => {
         if (tradeVisible) hidePanel('trade');
         else showTradeOverlay();
+      }
+    },
+    {
+      label: questDetailVisible ? '퀘스트 상세/설정 숨기기' : '퀘스트 상세/설정 열기 (Alt+O)',
+      click: () => {
+        if (questDetailVisible) hidePanel('quest-detail');
+        else showQuestDetailOverlay();
       }
     },
     { label: '전체 오버레이 숨기기', click: hideAllOverlays },
@@ -211,7 +246,10 @@ function loadPanelBounds(): PanelBoundsStore {
   try {
     const parsed = JSON.parse(readFileSync(getBoundsStorePath(), 'utf8')) as PanelBoundsStore;
     return {
-      quest: parsed.quest != null ? ensureBoundsOnDisplay(parsed.quest) : undefined,
+      'quest-area': parsed['quest-area'] != null ? ensureBoundsOnDisplay(parsed['quest-area']) : undefined,
+      'quest-required': parsed['quest-required'] != null ? ensureBoundsOnDisplay(parsed['quest-required']) : undefined,
+      'quest-optional': parsed['quest-optional'] != null ? ensureBoundsOnDisplay(parsed['quest-optional']) : undefined,
+      'quest-detail': parsed['quest-detail'] != null ? ensureBoundsOnDisplay(parsed['quest-detail']) : undefined,
       trade: parsed.trade != null ? ensureBoundsOnDisplay(parsed.trade) : undefined
     };
   } catch {
@@ -221,8 +259,10 @@ function loadPanelBounds(): PanelBoundsStore {
 
 function savePanelBounds(): void {
   const bounds: PanelBoundsStore = {};
-  if (questWindow != null && !questWindow.isDestroyed()) bounds.quest = questWindow.getBounds();
-  if (tradeWindow != null && !tradeWindow.isDestroyed()) bounds.trade = tradeWindow.getBounds();
+  for (const panel of ['quest-area', 'quest-required', 'quest-optional', 'quest-detail', 'trade'] as OverlayPanel[]) {
+    const win = getPanelWindow(panel);
+    if (win != null && !win.isDestroyed()) bounds[panel] = win.getBounds();
+  }
   try {
     writeFileSync(getBoundsStorePath(), JSON.stringify(bounds, null, 2), 'utf8');
   } catch (error) {
@@ -253,6 +293,16 @@ function ensureBoundsOnDisplay(bounds: Electron.Rectangle): Electron.Rectangle {
 
 function rectanglesIntersect(left: Electron.Rectangle, right: Electron.Rectangle): boolean {
   return left.x < right.x + right.width && left.x + left.width > right.x && left.y < right.y + right.height && left.y + left.height > right.y;
+}
+
+function getInitialPanelBounds(panel: OverlayPanel, stored: PanelBoundsStore): Partial<Electron.Rectangle> | undefined {
+  if (stored[panel] != null) return stored[panel];
+  const workArea = screen.getPrimaryDisplay().workArea;
+  if (panel === 'quest-area') return { x: workArea.x + 36, y: workArea.y + 120 };
+  if (panel === 'quest-required') return { x: workArea.x + 36, y: workArea.y + 250 };
+  if (panel === 'quest-optional') return { x: workArea.x + 36, y: workArea.y + 492 };
+  if (panel === 'quest-detail') return { x: workArea.x + Math.max(60, workArea.width - 780), y: workArea.y + 90 };
+  return { x: workArea.x + Math.max(60, workArea.width - 780), y: workArea.y + 160 };
 }
 
 function attachPanelWindowLifecycle(win: BrowserWindow, panel: OverlayPanel): void {
@@ -318,6 +368,7 @@ function registerOverlayHotkeys(): HotkeyRegistrationResult[] {
   hotkeyRegistrations = registerHotkeys({
     toggleOverlay: toggleQuestOverlay,
     showQuestOverlay,
+    showQuestDetailOverlay,
     showItemOverlay: showTradeOverlay
   });
 
@@ -346,9 +397,15 @@ async function createApp(): Promise<void> {
   await progressStore.save(questProgress);
 
   const panelBounds = loadPanelBounds();
-  questWindow = createOverlayWindow({ panel: 'quest', bounds: panelBounds.quest });
-  tradeWindow = createOverlayWindow({ panel: 'trade', bounds: panelBounds.trade });
-  attachPanelWindowLifecycle(questWindow, 'quest');
+  questAreaWindow = createOverlayWindow({ panel: 'quest-area', bounds: getInitialPanelBounds('quest-area', panelBounds) });
+  questRequiredWindow = createOverlayWindow({ panel: 'quest-required', bounds: getInitialPanelBounds('quest-required', panelBounds) });
+  questOptionalWindow = createOverlayWindow({ panel: 'quest-optional', bounds: getInitialPanelBounds('quest-optional', panelBounds) });
+  questDetailWindow = createOverlayWindow({ panel: 'quest-detail', bounds: getInitialPanelBounds('quest-detail', panelBounds) });
+  tradeWindow = createOverlayWindow({ panel: 'trade', bounds: getInitialPanelBounds('trade', panelBounds) });
+  attachPanelWindowLifecycle(questAreaWindow, 'quest-area');
+  attachPanelWindowLifecycle(questRequiredWindow, 'quest-required');
+  attachPanelWindowLifecycle(questOptionalWindow, 'quest-optional');
+  attachPanelWindowLifecycle(questDetailWindow, 'quest-detail');
   attachPanelWindowLifecycle(tradeWindow, 'trade');
   createAppTray();
 
@@ -357,7 +414,8 @@ async function createApp(): Promise<void> {
   ipcMain.handle('overlay:show', (event) => {
     const sender = getSenderWindow(event);
     const panel = sender != null ? getWindowPanel(sender) : null;
-    showPanelPassive(panel ?? 'quest');
+    if (panel == null || panel === 'quest-area' || panel === 'quest-required' || panel === 'quest-optional') showQuestOverlay();
+    else showPanelPassive(panel);
   });
   ipcMain.handle('overlay:hide', (event) => hideWindow(getSenderWindow(event)));
   ipcMain.handle('overlay:resize-by', (event, deltaX: number, deltaY: number) => resizeWindowBy(getSenderWindow(event), deltaX, deltaY));
