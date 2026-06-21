@@ -14,7 +14,7 @@ export const act4Areas: AreaDefinition[] = [
   { id: 'act4-shrike-island', act: 4, nameKo: '쉬라이크 섬', nameEn: 'Shrike Island', logNamesKo: ['쉬라이크 섬', '때까치 섬', 'Shrike Island'], isTown: false, hasMapThumbnail: false, needsVerification: true, guideStepIds: ['act4-shrike-island-boss'] },
   { id: 'act4-whakapanu-island', act: 4, nameKo: '와카파누 섬', nameEn: 'Whakapanu Island', logNamesKo: ['와카파누 섬', 'Whakapanu Island'], isTown: false, hasMapThumbnail: false, needsVerification: true, guideStepIds: ['act4-whakapanu-diamora', 'act4-great-white-one', 'act4-siren-pearl'] },
   { id: 'act4-ngakanu', act: 4, nameKo: '응가카누', nameEn: 'Ngakanu', logNamesKo: ['응가카누', 'Ngakanu'], areaIdAliases: ['g4_11_1a', 'g4_11_1b'], isTown: false, hasMapThumbnail: false, needsVerification: true, guideStepIds: ['act4-abyss'] },
-  { id: 'act4-tribal-heart', act: 4, nameKo: '부족의 심장부', nameEn: 'Tribal Heart', logNamesKo: ['부족의 심장부', 'Tribal Heart'], areaIdAliases: ['g4_11_2'], isTown: false, hasMapThumbnail: false, needsVerification: true, guideStepIds: ['act4-tribal-medicine'] },
+  { id: 'act4-tribal-heart', act: 4, nameKo: '부족의 심장부', nameEn: 'Tribal Heart', logNamesKo: ['부족의 심장부', 'Tribal Heart'], areaIdAliases: ['g4_11_2'], isTown: false, hasMapThumbnail: false, needsVerification: true, guideStepIds: ['act4-tukohama-chief-tavakai'] },
   { id: 'act4-plunders-point', act: 4, nameKo: '약탈자의 거점', nameEn: "Plunder's Point", logNamesKo: ['약탈자의 거점', '약탈의 거점', "Plunder's Point"], isTown: false, hasMapThumbnail: false, needsVerification: true, guideStepIds: ['act4-forgotten-bounty', 'act4-lonely-outpost'] },
   { id: 'act4-halls-of-the-dead', act: 4, nameKo: '망자의 전당', nameEn: 'Halls of the Dead', logNamesKo: ['망자의 전당', 'Halls of the Dead'], isTown: false, hasMapThumbnail: false, needsVerification: true, guideStepIds: ['act4-ngamahu-test', 'act4-tasalio-test', 'act4-tawhoa-test', 'act4-navali-rest'] },
   { id: 'act4-trial-of-the-ancestors', act: 4, nameKo: '조상들의 시련', nameEn: 'Trial of the Ancestors', logNamesKo: ['조상들의 시련', '선조들의 심판', 'Trial of the Ancestors'], isTown: false, hasMapThumbnail: false, needsVerification: true, guideStepIds: ['act4-trial-ancestors-complete'] },
@@ -61,7 +61,7 @@ export const act4Checklists: AreaChecklist[] = [
     ['act4-siren-pearl', '사이렌 진주: 사이렌 진주 관련 목표/보상 확인', 'optional', '4장 한국 서버 퀘스트 목록 기준']
   ]),
   objective('act4-ngakanu', 'act4-abyss', '심연: 응가카누에서 심연 퀘스트 목표 확인', 'required', '한국 클라이언트 응가카누에서 확인된 퀘스트'),
-  objective('act4-tribal-heart', 'act4-tribal-medicine', '부족의 의술: 부족의 심장부에서 카이마나와 부족의 심장 목표 확인', 'optional', '한국 클라이언트 부족의 심장부/카이마나 대사에서 확인된 선택 퀘스트'),
+  objective('act4-tribal-heart', 'act4-tukohama-chief-tavakai', '토코하마 부족장 타바카이: 부족의 심장부에서 타바카이 관련 목표 확인', 'required', '사용자가 한국 클라이언트 부족의 심장부에서 확인한 퀘스트명'),
   objectives('act4-plunders-point', [
     ['act4-forgotten-bounty', '잊힌 하사품: 찢어진 지도 조각/탐험 보상 진행', 'optional', 'Plunder’s Point 선택 퀘스트'],
     ['act4-lonely-outpost', '외딴 초소: 약탈의 거점에서 외딴 초소 퀘스트 목표 확인', 'optional', '한국 클라이언트 약탈의 거점에서 확인된 선택 퀘스트']

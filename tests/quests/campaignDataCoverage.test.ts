@@ -69,7 +69,7 @@ describe('campaign quest data coverage', () => {
       '사이렌 진주',
       '상위 빈 룬',
       '타바카이 따라가기',
-      '부족의 의술'
+      '토코하마 부족장 타바카이'
     ]) {
       expect(joined).toContain(expectedName);
     }
@@ -131,7 +131,7 @@ describe('campaign quest data coverage', () => {
     expect(checklist?.objectives.map((objective) => objective.labelKo)).toContain('심연: 응가카누에서 심연 퀘스트 목표 확인');
   });
 
-  it('maps Tribal Heart Client.txt scene/code to its Tribal Medicine quest checklist', () => {
+  it('maps Tribal Heart Client.txt scene/code to its Tukohama Chief Tavakai quest checklist', () => {
     const tribalHeart = areaDefinitions.find((area) => area.id === 'act4-tribal-heart');
     expect(tribalHeart?.nameKo).toBe('부족의 심장부');
     expect(tribalHeart?.logNamesKo).toContain('부족의 심장부');
@@ -150,7 +150,9 @@ describe('campaign quest data coverage', () => {
     expect(byCode.areaId).toBe('act4-tribal-heart');
 
     const checklist = areaChecklists.find((entry) => entry.areaId === 'act4-tribal-heart');
-    expect(checklist?.objectives.map((objective) => objective.labelKo)).toContain('부족의 의술: 부족의 심장부에서 카이마나와 부족의 심장 목표 확인');
+    expect(checklist?.objectives.map((objective) => objective.labelKo)).toContain('토코하마 부족장 타바카이: 부족의 심장부에서 타바카이 관련 목표 확인');
+    expect(checklist?.objectives.map((objective) => objective.labelKo).some((label) => label.includes('부족의 의술'))).toBe(false);
+    expect(checklist?.objectives.find((objective) => objective.id === 'act4-tukohama-chief-tavakai')?.kind).toBe('required');
   });
 
   it('shows Plunder\'s Point Korean alias and Lonely Outpost objective in the current area checklist', () => {
