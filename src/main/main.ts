@@ -114,6 +114,21 @@ function hideAllOverlays(): void {
   hidePanel('trade');
 }
 
+function resizeWindowBy(win: BrowserWindow | null, deltaX: number, deltaY: number): void {
+  if (win == null || win.isDestroyed()) return;
+  const panel = getWindowPanel(win);
+  const bounds = win.getBounds();
+  const minWidth = panel === 'trade' ? 480 : 380;
+  const minHeight = panel === 'trade' ? 420 : 460;
+  const nextBounds = {
+    ...bounds,
+    width: Math.max(minWidth, Math.round(bounds.width + deltaX)),
+    height: Math.max(minHeight, Math.round(bounds.height + deltaY))
+  };
+  win.setBounds(nextBounds);
+  schedulePanelBoundsSave();
+}
+
 function showPanelPassive(panel: OverlayPanel): void {
   const win = getPanelWindow(panel);
   if (win == null || win.isDestroyed()) return;
@@ -345,6 +360,7 @@ async function createApp(): Promise<void> {
     showPanelPassive(panel ?? 'quest');
   });
   ipcMain.handle('overlay:hide', (event) => hideWindow(getSenderWindow(event)));
+  ipcMain.handle('overlay:resize-by', (event, deltaX: number, deltaY: number) => resizeWindowBy(getSenderWindow(event), deltaX, deltaY));
   ipcMain.handle('overlay:set-click-through', (event, enabled: boolean) => setWindowClickThrough(getSenderWindow(event), enabled));
   ipcMain.handle('external:open', async (_event, url: string) => {
     if (!isAllowedExternalUrl(url)) throw new Error('Blocked external URL');

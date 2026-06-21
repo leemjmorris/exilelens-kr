@@ -29,6 +29,7 @@ button {
 }
 
 .overlay-shell {
+  position: relative;
   display: flex;
   flex-direction: column;
   margin: 24px;
@@ -412,6 +413,28 @@ button {
 
 .overlay-shell-quest {
   min-height: 460px;
+}
+
+.quest-resize-grip {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  width: 28px;
+  height: 28px;
+  border: 1px solid rgba(56, 189, 248, 0.45);
+  border-radius: 8px 4px 12px 4px;
+  background:
+    linear-gradient(135deg, transparent 0 45%, rgba(56, 189, 248, 0.28) 46% 54%, transparent 55%),
+    linear-gradient(135deg, transparent 0 62%, rgba(56, 189, 248, 0.42) 63% 70%, transparent 71%),
+    rgba(15, 23, 42, 0.92);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+  cursor: nwse-resize;
+  z-index: 10;
+}
+
+.quest-resize-grip:hover {
+  border-color: rgba(125, 211, 252, 0.8);
+  background-color: rgba(14, 165, 233, 0.18);
 }
 
 .settings-panel {

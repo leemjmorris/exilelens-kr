@@ -15,6 +15,7 @@ declare global {
     exileLens?: {
       showOverlay: () => Promise<void>;
       hideOverlay: () => Promise<void>;
+      resizeOverlayBy: (deltaX: number, deltaY: number) => Promise<void>;
       setOverlayClickThrough: (enabled: boolean) => Promise<void>;
       openExternalUrl: (url: string) => Promise<void>;
       writeClipboardText: (text: string) => Promise<void>;

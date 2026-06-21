@@ -73,14 +73,21 @@ describe('static safety guardrails', () => {
     expect(mainSource).toContain('win.setSkipTaskbar(false)');
     expect(mainSource).toContain('win.setSkipTaskbar(true)');
     expect(mainSource).toContain('savePanelBounds()');
+    expect(mainSource).toContain("ipcMain.handle('overlay:resize-by'");
+    expect(mainSource).toContain('resizeWindowBy(getSenderWindow(event)');
     expect(windowSource).toContain('show: false');
     expect(windowSource).toContain('skipTaskbar: true');
     expect(windowSource).toContain('resizable: true');
     expect(windowSource).toContain("alwaysOnTop: options.panel === 'quest'");
     expect(appSource).toContain("panel === 'trade'");
     expect(appSource).toContain('aria-label="시세 창 닫기"');
+    expect(appSource).toContain('QuestResizeGrip');
+    expect(appSource).toContain('resizeOverlayBy');
+    expect(appSource).toContain('aria-label="퀘스트 창 크기 조절"');
     expect(cssSource).toContain('-webkit-app-region: drag');
     expect(cssSource).toContain('-webkit-app-region: no-drag');
+    expect(cssSource).toContain('.quest-resize-grip');
+    expect(cssSource).toContain('cursor: nwse-resize');
   });
 
   it('uses a single fixed-header content scroller in the overlay shell', () => {

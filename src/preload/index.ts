@@ -14,6 +14,7 @@ type Route = 'item' | 'quest' | 'settings';
 contextBridge.exposeInMainWorld('exileLens', {
   showOverlay: () => ipcRenderer.invoke('overlay:show'),
   hideOverlay: () => ipcRenderer.invoke('overlay:hide') as Promise<void>,
+  resizeOverlayBy: (deltaX: number, deltaY: number) => ipcRenderer.invoke('overlay:resize-by', deltaX, deltaY) as Promise<void>,
   setOverlayClickThrough: (enabled: boolean) => ipcRenderer.invoke('overlay:set-click-through', enabled) as Promise<void>,
   openExternalUrl: (url: string) => ipcRenderer.invoke('external:open', url) as Promise<void>,
   writeClipboardText: (text: string) => ipcRenderer.invoke('clipboard:write-text', text) as Promise<void>,

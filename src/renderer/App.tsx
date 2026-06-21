@@ -295,7 +295,49 @@ function App(): React.ReactElement {
           />
         )}
       </div>
+      {panel === 'quest' ? <QuestResizeGrip /> : null}
     </main>
+  );
+}
+
+function QuestResizeGrip(): React.ReactElement {
+  const dragState = React.useRef<{ x: number; y: number } | null>(null);
+
+  function finishResize(): void {
+    dragState.current = null;
+    void window.exileLens?.setOverlayClickThrough?.(true);
+    window.removeEventListener('pointermove', handlePointerMove);
+    window.removeEventListener('pointerup', finishResize);
+    window.removeEventListener('pointercancel', finishResize);
+  }
+
+  function handlePointerMove(event: PointerEvent): void {
+    const previous = dragState.current;
+    if (previous == null) return;
+    const deltaX = event.screenX - previous.x;
+    const deltaY = event.screenY - previous.y;
+    dragState.current = { x: event.screenX, y: event.screenY };
+    void window.exileLens?.resizeOverlayBy?.(deltaX, deltaY);
+  }
+
+  function startResize(event: React.PointerEvent<HTMLButtonElement>): void {
+    event.preventDefault();
+    event.stopPropagation();
+    dragState.current = { x: event.screenX, y: event.screenY };
+    void window.exileLens?.setOverlayClickThrough?.(false);
+    window.addEventListener('pointermove', handlePointerMove);
+    window.addEventListener('pointerup', finishResize);
+    window.addEventListener('pointercancel', finishResize);
+  }
+
+  return (
+    <button
+      type="button"
+      className="quest-resize-grip"
+      aria-label="퀘스트 창 크기 조절"
+      title="드래그해서 퀘스트 창 크기 조절"
+      onPointerDown={startResize}
+    />
   );
 }
 
