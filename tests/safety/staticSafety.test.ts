@@ -101,6 +101,9 @@ describe('static safety guardrails', () => {
     expect(appSource).toContain('quest-hud-widget-list');
     expect(appSource).toContain('hud-drag-strip');
     expect(cssSource).toContain('.quest-hud-shell');
+    expect(cssSource).toContain('backdrop-filter: blur(16px) saturate(128%)');
+    expect(cssSource).toContain('rgba(2, 6, 23, 0.48)');
+    expect(cssSource).toContain('.quest-hud-shell::before');
     expect(cssSource).toContain('.quest-hud-widget');
     expect(cssSource).toContain('cursor: move');
     expect(cssSource).toContain('.hud-drag-strip');
