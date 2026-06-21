@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { applyAutomaticQuestProgress, isObjectiveCompleted } from '../../src/shared/quests/checklist';
 import { areaChecklists, areaDefinitions } from '../../src/shared/quests/data';
+import { matchDetectedArea } from '../../src/shared/quests/areaMatcher';
 
 describe('campaign quest data coverage', () => {
   it('contains all campaign act groups including interlude and act 4', () => {
@@ -106,6 +107,27 @@ describe('campaign quest data coverage', () => {
       'act4-abandoned-prison-forgotten-cell',
       'act4-abandoned-prison-armoury'
     ]);
+  });
+
+  it('maps Ngakanu Client.txt scene/code to Whakapanu Island checklist so completed Great White One stays visible', () => {
+    const whakapanu = areaDefinitions.find((area) => area.id === 'act4-whakapanu-island');
+    expect(whakapanu?.logNamesKo).toContain('응가카누');
+    expect(whakapanu?.areaIdAliases).toContain('g4_11_1a');
+
+    const byScene = matchDetectedArea('응가카누', areaDefinitions);
+    expect(byScene).toEqual({
+      areaId: 'act4-whakapanu-island',
+      act: 4,
+      areaNameKo: '와카파누 섬',
+      detectedFrom: 'client_log',
+      confidence: 'high'
+    });
+
+    const byCode = matchDetectedArea('G4_11_1a', areaDefinitions);
+    expect(byCode.areaId).toBe('act4-whakapanu-island');
+
+    const checklist = areaChecklists.find((entry) => entry.areaId === 'act4-whakapanu-island');
+    expect(checklist?.objectives.some((objective) => objective.id === 'act4-great-white-one')).toBe(true);
   });
 
   it('shows Plunder\'s Point Korean alias and Lonely Outpost objective in the current area checklist', () => {
