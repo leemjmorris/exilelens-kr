@@ -88,7 +88,8 @@ button {
 .quest-panel {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 12px;
+  padding: 14px;
 }
 
 .quest-view-switch {
@@ -113,6 +114,114 @@ button {
   background: rgba(14, 165, 233, 0.22);
   color: #e0f2fe;
   box-shadow: 0 0 0 1px rgba(56, 189, 248, 0.12);
+}
+
+.quest-hud-card {
+  border: 1px solid rgba(56, 189, 248, 0.26);
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(14, 165, 233, 0.14), rgba(15, 23, 42, 0.46));
+  padding: 12px 14px;
+}
+
+.quest-hud-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.hud-act-label {
+  display: inline-flex;
+  width: fit-content;
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  border-radius: 999px;
+  color: #7dd3fc;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  padding: 3px 7px;
+}
+
+.quest-hud-card h1 {
+  margin: 8px 0 0;
+  font-size: 24px;
+  line-height: 1.1;
+}
+
+.hud-source-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  flex: 0 0 auto;
+  margin-top: 6px;
+  background: #64748b;
+  box-shadow: 0 0 0 4px rgba(100, 116, 139, 0.12);
+}
+
+.hud-source-high {
+  background: #22c55e;
+  box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.13);
+}
+
+.hud-source-medium {
+  background: #f59e0b;
+  box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.13);
+}
+
+.hud-source-low {
+  background: #ef4444;
+  box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.13);
+}
+
+.quest-hud-summary,
+.hud-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.hud-actions button {
+  flex: 1 1 120px;
+  padding: 7px 10px;
+  color: #cbd5e1;
+}
+
+.hud-checklist-grid {
+  gap: 10px;
+}
+
+.hud-checklist-group {
+  border-radius: 14px;
+  padding: 10px;
+}
+
+.hud-checklist-group h2 {
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.hud-objective {
+  grid-template-columns: 20px 1fr;
+  gap: 8px;
+  line-height: 1.35;
+}
+
+.hud-empty-state {
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 14px;
+  background: rgba(15, 23, 42, 0.5);
+  padding: 12px;
+}
+
+.compact-area-override-card {
+  grid-template-columns: 1fr;
+  gap: 10px;
+  padding: 12px;
+}
+
+.compact-area-override-card p {
+  display: none;
 }
 
 .current-area-card {

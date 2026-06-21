@@ -729,6 +729,13 @@ function QuestPanel({
 }): React.ReactElement {
   const grouped = checklist == null ? { required: [], optional: [] } : groupChecklistObjectives(checklist.objectives);
   const [questView, setQuestView] = useState<QuestView>('current');
+  const [areaCorrectionOpen, setAreaCorrectionOpen] = useState<boolean>(false);
+  const requiredIncompleteCount = grouped.required.filter((objective) =>
+    checklist == null ? false : !isObjectiveCompleted(progress, checklist.areaId, objective.id)
+  ).length;
+  const optionalIncompleteCount = grouped.optional.filter((objective) =>
+    checklist == null ? false : !isObjectiveCompleted(progress, checklist.areaId, objective.id)
+  ).length;
   const sourceLabel =
     currentArea.detectedFrom === 'client_log'
       ? 'Client.txt'
@@ -755,73 +762,87 @@ function QuestPanel({
 
       {questView === 'current' ? (
         <>
-          <div className="current-area-card">
-            <span className="eyebrow">Current Area</span>
-            <h1>{currentArea.areaNameKo ?? '지역 미감지'}</h1>
-            <p>
-              출처: {sourceLabel} · 신뢰도: {confidenceLabel}
-              {currentArea.act != null ? ` · Act ${currentArea.act}` : ''}
-            </p>
-          </div>
-
-          <section className="area-override-card">
-            <div>
-              <span className="eyebrow">Area Correction</span>
-              <h2>지역 수동 보정</h2>
-              <p>
-                Client.txt 감지가 실패했거나 다른 지역 체크리스트가 필요하면 로컬 데이터에서 직접 선택하세요.
-                수동 보정은 설정에 저장되며, 자동 복귀 버튼으로 해제할 수 있습니다.
-              </p>
+          <section className="quest-hud-card">
+            <div className="quest-hud-header">
+              <div>
+                <span className="hud-act-label">{currentArea.act != null ? `ACT ${currentArea.act}` : 'AREA'}</span>
+                <h1>{currentArea.areaNameKo ?? '지역 미감지'}</h1>
+              </div>
+              <span className={`hud-source-dot hud-source-${currentArea.confidence}`} title={`출처: ${sourceLabel} · 신뢰도: ${confidenceLabel}`} />
             </div>
-            <div className="area-override-actions">
-              <label className="field-row area-select">
-                <span>현재 체크리스트 지역</span>
-                <select
-                  value={manualAreaOverrideId ?? currentArea.areaId ?? ''}
-                  disabled={areaActionPending}
-                  onChange={(event) => void onSelectManualArea(event.target.value)}
-                >
-                  <option value="" disabled>
-                    지역 선택
-                  </option>
-                  {areaGroups.map((group) => (
-                    <optgroup key={group.act} label={formatActLabel(group.act)}>
-                      {group.areas.map((area) => (
-                        <option key={area.id} value={area.id}>
-                          {area.nameKo}{area.nameEn != null ? ` / ${area.nameEn}` : ''}{area.isTown ? ' (마을)' : ''}
-                        </option>
-                      ))}
-                    </optgroup>
-                  ))}
-                </select>
-              </label>
-              <button disabled={manualAreaOverrideId == null || areaActionPending} onClick={() => void onRestoreAutomatic()}>
-                {areaActionPending ? '처리 중...' : '자동/데모 감지로 복귀'}
-              </button>
-              {areaActionStatus.length > 0 ? <span className="status-pill">{areaActionStatus}</span> : null}
+            <div className="quest-hud-summary" aria-label="현재 지역 미완료 요약">
+              <span className={requiredIncompleteCount > 0 ? 'required-badge required-alert' : 'required-badge'}>
+                필수 {requiredIncompleteCount}
+              </span>
+              <span className="optional-badge">선택 {optionalIncompleteCount}</span>
             </div>
           </section>
 
           {checklist == null ? (
-            <p className="empty-state">이 지역에 연결된 체크리스트가 아직 없습니다.</p>
+            <p className="empty-state hud-empty-state">이 지역에 연결된 체크리스트가 아직 없습니다.</p>
           ) : (
-            <div className="checklist-grid">
+            <div className="checklist-grid hud-checklist-grid">
               <ChecklistGroup
-                title="[필수]"
+                title="필수"
                 areaId={checklist.areaId}
                 objectives={grouped.required}
                 progress={progress}
                 onToggleObjective={onToggleObjective}
+                compact
               />
               <ChecklistGroup
-                title="[선택]"
+                title="선택"
                 areaId={checklist.areaId}
                 objectives={grouped.optional}
                 progress={progress}
                 onToggleObjective={onToggleObjective}
+                compact
               />
             </div>
           )}
+
+          <div className="hud-actions">
+            <button onClick={() => setQuestView('all')}>전체 현황</button>
+            <button onClick={() => setAreaCorrectionOpen((open) => !open)}>
+              {areaCorrectionOpen ? '지역 보정 닫기' : '지역 보정'}
+            </button>
+          </div>
+
+          {areaCorrectionOpen ? (
+            <section className="area-override-card compact-area-override-card">
+              <div>
+                <span className="eyebrow">Area Correction</span>
+                <h2>지역 수동 보정</h2>
+              </div>
+              <div className="area-override-actions">
+                <label className="field-row area-select">
+                  <span>현재 체크리스트 지역</span>
+                  <select
+                    value={manualAreaOverrideId ?? currentArea.areaId ?? ''}
+                    disabled={areaActionPending}
+                    onChange={(event) => void onSelectManualArea(event.target.value)}
+                  >
+                    <option value="" disabled>
+                      지역 선택
+                    </option>
+                    {areaGroups.map((group) => (
+                      <optgroup key={group.act} label={formatActLabel(group.act)}>
+                        {group.areas.map((area) => (
+                          <option key={area.id} value={area.id}>
+                            {area.nameKo}{area.nameEn != null ? ` / ${area.nameEn}` : ''}{area.isTown ? ' (마을)' : ''}
+                          </option>
+                        ))}
+                      </optgroup>
+                    ))}
+                  </select>
+                </label>
+                <button disabled={manualAreaOverrideId == null || areaActionPending} onClick={() => void onRestoreAutomatic()}>
+                  {areaActionPending ? '처리 중...' : '자동 감지로 복귀'}
+                </button>
+                {areaActionStatus.length > 0 ? <span className="status-pill">{areaActionStatus}</span> : null}
+              </div>
+            </section>
+          ) : null}
         </>
       ) : (
         <AllAreaProgressBoard
@@ -1020,16 +1041,18 @@ function ChecklistGroup({
   areaId,
   objectives,
   progress,
-  onToggleObjective
+  onToggleObjective,
+  compact = false
 }: {
   title: string;
   areaId: string;
   objectives: ChecklistObjective[];
   progress: QuestProgress;
   onToggleObjective: (areaId: string, objectiveId: string) => Promise<void>;
+  compact?: boolean;
 }): React.ReactElement {
   return (
-    <section className="checklist-group">
+    <section className={compact ? 'checklist-group hud-checklist-group' : 'checklist-group'}>
       <h2>{title}</h2>
       {objectives.length === 0 ? (
         <p className="empty-state">항목 없음</p>
@@ -1040,14 +1063,14 @@ function ChecklistGroup({
             return (
               <li key={objective.id}>
                 <button
-                  className={`objective ${completed ? 'objective-completed' : ''}`}
+                  className={`objective ${compact ? 'hud-objective compact-objective' : ''} ${completed ? 'objective-completed' : ''}`}
                   onClick={() => void onToggleObjective(areaId, objective.id)}
                 >
                   <span className="objective-check">{completed ? '✓' : '○'}</span>
                   <span>
                     {objective.labelKo}
-                    {objective.needsVerification ? <em>검증 필요</em> : null}
-                    {objective.notesKo != null ? <small>{objective.notesKo}</small> : null}
+                    {!compact && objective.needsVerification ? <em>검증 필요</em> : null}
+                    {!compact && objective.notesKo != null ? <small>{objective.notesKo}</small> : null}
                   </span>
                 </button>
               </li>
