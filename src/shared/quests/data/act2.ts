@@ -70,6 +70,21 @@ function objectives(areaId: string, entries: Array<[string, string, 'required' |
   return {
     areaId,
     needsVerification: true,
-    objectives: entries.map(([id, labelKo, kind, notesKo]) => ({ id, labelKo, kind, notesKo, needsVerification: true }))
+    objectives: entries.map(([id, labelKo, kind, notesKo]) => ({
+      id,
+      labelKo,
+      kind,
+      notesKo,
+      needsVerification: true,
+      autoComplete: getAutoCompleteRules(areaId, id)
+    }))
   };
+}
+
+
+function getAutoCompleteRules(areaId: string, objectiveId: string) {
+  if (areaId === 'act2-spires-of-deshar' && objectiveId === 'act2-spires-garukhan-lightning') {
+    return [{ type: 'reward-acquired' as const, areaId, includes: ['[Resistances|번개] 저항 +10%'], confidence: 'high' as const }];
+  }
+  return undefined;
 }

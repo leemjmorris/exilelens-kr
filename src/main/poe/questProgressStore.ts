@@ -18,7 +18,8 @@ export function createQuestProgressStore(baseDir: string): {
         const parsed = JSON.parse(raw) as Partial<QuestProgress>;
         return normalizeManualQuestProgress({
           completedObjectiveIds: parsed.completedObjectiveIds ?? {},
-          manualObjectiveStates: parsed.manualObjectiveStates ?? {}
+          manualObjectiveStates: parsed.manualObjectiveStates ?? {},
+          autoObjectiveStates: parsed.autoObjectiveStates ?? {}
         });
       } catch {
         return createEmptyQuestProgress();

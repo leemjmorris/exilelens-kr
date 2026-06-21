@@ -85,6 +85,69 @@ function objectives(areaId: string, entries: Array<[string, string, 'required' |
   return {
     areaId,
     needsVerification: true,
-    objectives: entries.map(([id, labelKo, kind, notesKo]) => ({ id, labelKo, kind, notesKo, needsVerification: true }))
+    objectives: entries.map(([id, labelKo, kind, notesKo]) => ({
+      id,
+      labelKo,
+      kind,
+      notesKo,
+      needsVerification: true,
+      autoComplete: getAutoCompleteRules(areaId, id)
+    }))
   };
+}
+
+
+function getAutoCompleteRules(areaId: string, objectiveId: string) {
+  if (areaId === 'act4-abandoned-prison' && objectiveId === 'act4-abandoned-prison-goddess-justice') {
+    return [
+      {
+        type: 'reward-acquired' as const,
+        areaId,
+        includes: ['[Flask|플라스크]로 회복하는 생명력 30% 증가'],
+        confidence: 'high' as const
+      }
+    ];
+  }
+  if (areaId === 'act4-whakapanu-island' && objectiveId === 'act4-great-white-one') {
+    return [
+      {
+        type: 'reward-acquired' as const,
+        includes: ['[Armour|방어도]', '[Evasion|회피]', '[EnergyShield|에너지 보호막] 30% 증가'],
+        confidence: 'high' as const
+      }
+    ];
+  }
+  if (areaId === 'act4-trial-of-the-ancestors' && objectiveId === 'act4-trial-ancestors-complete') {
+    return [
+      {
+        type: 'reward-acquired' as const,
+        includes: ['패시브 스킬 포인트 2포인트를 획득했습니다'],
+        confidence: 'high' as const
+      }
+    ];
+  }
+  if (areaId === 'act4-halls-of-the-dead' && ['act4-ngamahu-test', 'act4-tasalio-test', 'act4-tawhoa-test'].includes(objectiveId)) {
+    const rewardByObjective: Record<string, string[]> = {
+      'act4-ngamahu-test': ['[Dexterity|민첩] +5'],
+      'act4-tasalio-test': ['[Resistances|냉기] 저항 +5%'],
+      'act4-tawhoa-test': ['[Resistances|화염] 저항 +5%']
+    };
+    return [
+      {
+        type: 'reward-acquired' as const,
+        includes: rewardByObjective[objectiveId],
+        confidence: 'high' as const
+      }
+    ];
+  }
+  if (areaId === 'act4-halls-of-the-dead' && objectiveId === 'act4-navali-rest') {
+    return [
+      {
+        type: 'reward-acquired' as const,
+        includes: ['최대 마나 5% 증가'],
+        confidence: 'high' as const
+      }
+    ];
+  }
+  return undefined;
 }

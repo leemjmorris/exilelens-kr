@@ -1,11 +1,19 @@
 export type ChecklistObjectiveKind = 'required' | 'optional';
 
+export interface ObjectiveAutoCompleteRule {
+  type: 'reward-acquired';
+  includes: string[];
+  areaId?: string;
+  confidence: 'high' | 'medium';
+}
+
 export interface ChecklistObjective {
   id: string;
   labelKo: string;
   kind: ChecklistObjectiveKind;
   notesKo?: string;
   needsVerification?: boolean;
+  autoComplete?: ObjectiveAutoCompleteRule[];
 }
 
 export interface AreaChecklist {
@@ -29,6 +37,11 @@ export interface QuestProgress {
    * true = completed, false = incomplete.
    */
   manualObjectiveStates?: Record<string, Record<string, boolean>>;
+  /**
+   * Automatic decisions from trusted evidence such as Client.txt reward acquisition lines.
+   * Manual false overrides always win over automatic true values.
+   */
+  autoObjectiveStates?: Record<string, Record<string, boolean>>;
 }
 
 export interface GroupedChecklistObjectives {
@@ -95,19 +108,27 @@ export function toggleObjectiveCompletion(progress: QuestProgress, areaId: strin
  * overrides as incomplete.
  */
 export function normalizeManualQuestProgress(progress: QuestProgress): QuestProgress {
-  const manualObjectiveStates = cloneManualObjectiveStates(progress.manualObjectiveStates) ?? {};
+  const manualObjectiveStates = cloneObjectiveStates(progress.manualObjectiveStates) ?? {};
+  const autoObjectiveStates = cloneObjectiveStates(progress.autoObjectiveStates) ?? {};
   const completedObjectiveIds: Record<string, string[]> = {};
+  const areaIds = new Set([...Object.keys(autoObjectiveStates), ...Object.keys(manualObjectiveStates)]);
 
-  for (const [areaId, objectiveStates] of Object.entries(manualObjectiveStates)) {
-    const completedIds = Object.entries(objectiveStates)
-      .filter(([, completed]) => completed === true)
-      .map(([objectiveId]) => objectiveId);
-    completedObjectiveIds[areaId] = completedIds;
+  for (const areaId of areaIds) {
+    const completedIds = new Set<string>();
+    for (const [objectiveId, completed] of Object.entries(autoObjectiveStates[areaId] ?? {})) {
+      if (completed === true) completedIds.add(objectiveId);
+    }
+    for (const [objectiveId, completed] of Object.entries(manualObjectiveStates[areaId] ?? {})) {
+      if (completed === true) completedIds.add(objectiveId);
+      if (completed === false) completedIds.delete(objectiveId);
+    }
+    completedObjectiveIds[areaId] = [...completedIds];
   }
 
   return {
     completedObjectiveIds,
-    manualObjectiveStates
+    manualObjectiveStates,
+    autoObjectiveStates
   };
 }
 
@@ -164,9 +185,9 @@ export function buildAreaProgressGroups(
     }));
 }
 
-function cloneManualObjectiveStates(
-  states: QuestProgress['manualObjectiveStates']
-): QuestProgress['manualObjectiveStates'] {
+function cloneObjectiveStates(
+  states: Record<string, Record<string, boolean>> | undefined
+): Record<string, Record<string, boolean>> | undefined {
   if (states == null) return undefined;
   return Object.fromEntries(Object.entries(states).map(([areaId, areaStates]) => [areaId, { ...areaStates }]));
 }
@@ -176,5 +197,5 @@ function getActSortOrder(act: number): number {
 }
 
 export function createEmptyQuestProgress(): QuestProgress {
-  return { completedObjectiveIds: {}, manualObjectiveStates: {} };
+  return { completedObjectiveIds: {}, manualObjectiveStates: {}, autoObjectiveStates: {} };
 }

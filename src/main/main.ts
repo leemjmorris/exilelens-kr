@@ -9,11 +9,12 @@ import { createSettingsStore } from './settings/settingsStore';
 import { captureCopiedItemText, createElectronClipboardCaptureDeps } from './clipboard/itemClipboardCapture';
 import { searchOfficialTrade } from './trade/officialTradeApi';
 import { fetchPoe2TradeLeagues } from './trade/leagueApi';
-import { areaDefinitions, getDemoAreaDetection } from '../shared/quests/data';
+import { areaDefinitions, areaChecklists, getDemoAreaDetection } from '../shared/quests/data';
 import { buildManualAreaOverride, normalizeManualAreaOverrideId } from '../shared/quests/areaSelection';
 import type { AreaDetectionState } from '../shared/quests/areaMatcher';
 import type { QuestProgress } from '../shared/quests/checklist';
 import { normalizeManualQuestProgress } from '../shared/quests/checklist';
+import { applyQuestEvidenceToProgress, type QuestEvidence } from '../shared/quests/questEvidence';
 import type { ParsedItemText } from '../shared/items/itemParser';
 import { normalizeAppSettings, shouldWatchClientLog, type AppSettings } from '../shared/settings/appSettings';
 import { buildClientLogPathCandidates, type ClientLogDiscoveryResult } from '../shared/settings/clientLogDiscovery';
@@ -27,7 +28,8 @@ let questDetailWindow: BrowserWindow | null = null;
 let tradeWindow: BrowserWindow | null = null;
 let tray: Tray | null = null;
 let areaWatcher: AreaWatcher | null = null;
-let questProgress: QuestProgress = { completedObjectiveIds: {} };
+let questProgress: QuestProgress = { completedObjectiveIds: {}, manualObjectiveStates: {}, autoObjectiveStates: {} };
+let saveQuestProgress: ((progress: QuestProgress) => Promise<void>) | null = null;
 let appSettings: AppSettings = normalizeAppSettings(undefined);
 let hotkeyRegistrations: HotkeyRegistrationResult[] = [];
 let lastAreaState: AreaDetectionState = getDemoAreaDetection();
@@ -106,6 +108,19 @@ function sendAreaDetected(state: AreaDetectionState): void {
 function sendEffectiveAreaDetected(): void {
   const manualArea = buildManualAreaOverride(areaDefinitions, appSettings.manualAreaOverrideId);
   sendAreaDetected(manualArea ?? lastAreaState ?? getDemoAreaDetection());
+}
+
+async function handleQuestEvidence(evidence: QuestEvidence[]): Promise<void> {
+  const nextProgress = applyQuestEvidenceToProgress(questProgress, areaChecklists, evidence);
+  if (safeStringify(nextProgress) === safeStringify(questProgress)) return;
+
+  questProgress = nextProgress;
+  await saveQuestProgress?.(questProgress);
+  writeAppLog('quest progress auto-completed from Client.txt evidence', {
+    evidenceCount: evidence.length,
+    completedObjectiveIds: questProgress.completedObjectiveIds
+  });
+  sendToOverlayWindows('quest:progress', questProgress);
 }
 
 function setWindowClickThrough(win: BrowserWindow | null, enabled: boolean): void {
@@ -366,6 +381,7 @@ function startAreaWatcher(settings: AppSettings): void {
     pollIntervalMs: 1000,
     fromBeginning: false,
     onAreaDetected: sendAreaDetected,
+    onQuestEvidence: (evidence) => void handleQuestEvidence(evidence).catch((error) => writeAppLog('quest evidence handler error', serializeError(error))),
     onError: (error) => writeAppLog('Client.txt watcher error', serializeError(error))
   });
   areaWatcher.start();
@@ -389,6 +405,7 @@ function registerOverlayHotkeys(): HotkeyRegistrationResult[] {
 
 async function createApp(): Promise<void> {
   const progressStore = createQuestProgressStore(app.getPath('userData'));
+  saveQuestProgress = progressStore.save;
   const settingsStore = createSettingsStore(app.getPath('userData'));
   questProgress = await progressStore.load();
   const storedSettings = await settingsStore.load();

@@ -6,6 +6,7 @@ import {
   type ClientLogCursor
 } from './clientLog';
 import type { AreaDefinition, AreaDetectionState } from '../../shared/quests/areaMatcher';
+import { parseQuestEvidenceFromClientLogLines, type QuestEvidence } from '../../shared/quests/questEvidence';
 
 export interface AreaWatcherOptions {
   clientLogPath: string;
@@ -14,6 +15,7 @@ export interface AreaWatcherOptions {
   fromBeginning?: boolean;
   bootstrapTailBytes?: number;
   onAreaDetected: (state: AreaDetectionState) => void;
+  onQuestEvidence?: (evidence: QuestEvidence[]) => void;
   onError?: (error: unknown) => void;
   createCursor?: (path: string, options?: { fromBeginning?: boolean }) => Promise<ClientLogCursor>;
   readLines?: (cursor: ClientLogCursor) => Promise<string[]>;
@@ -49,6 +51,9 @@ export function createAreaWatcher(options: AreaWatcherOptions): AreaWatcher {
         ? await readRecentLines(options.clientLogPath, bootstrapTailBytes)
         : await readLines(cursor);
       bootstrapped = true;
+      const evidence = parseQuestEvidenceFromClientLogLines(lines, options.areas);
+      if (evidence.length > 0) options.onQuestEvidence?.(evidence);
+
       const detected = scanLatestDetectedArea(lines, options.areas);
       if (detected == null) return;
 

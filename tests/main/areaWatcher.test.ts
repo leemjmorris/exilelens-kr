@@ -82,4 +82,35 @@ describe('createAreaWatcher', () => {
 
     expect(onAreaDetected).toHaveBeenCalledTimes(1);
   });
+
+  it('emits quest evidence from the same Client.txt polling batch', async () => {
+    const onAreaDetected = vi.fn();
+    const onQuestEvidence = vi.fn();
+    const watcher = createAreaWatcher({
+      clientLogPath: 'Client.txt',
+      areas,
+      pollIntervalMs: 10,
+      fromBeginning: true,
+      createCursor: vi.fn(async () => ({ path: 'Client.txt', offset: 0, pendingText: '' })),
+      readLines: vi.fn(async () => [
+        '2026/06/19 [INFO Client] [SCENE] Set Source [클리어펠]',
+        '2026/06/19 [INFO Client] : 테스트 님이 패시브 스킬 포인트 2포인트를 획득했습니다.'
+      ]),
+      onAreaDetected,
+      onQuestEvidence
+    });
+
+    await watcher.pollOnce();
+
+    expect(onQuestEvidence).toHaveBeenCalledWith(
+      expect.arrayContaining([
+        expect.objectContaining({ type: 'area-entered', areaId: 'act1-clearfell' }),
+        expect.objectContaining({
+          type: 'reward-acquired',
+          areaId: 'act1-clearfell',
+          rewardText: '테스트 님이 패시브 스킬 포인트 2포인트를 획득했습니다.'
+        })
+      ])
+    );
+  });
 });

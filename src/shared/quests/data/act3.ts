@@ -75,6 +75,30 @@ function objectives(areaId: string, entries: Array<[string, string, 'required' |
   return {
     areaId,
     needsVerification: true,
-    objectives: entries.map(([id, labelKo, kind, notesKo]) => ({ id, labelKo, kind, notesKo, needsVerification: true }))
+    objectives: entries.map(([id, labelKo, kind, notesKo]) => ({
+      id,
+      labelKo,
+      kind,
+      notesKo,
+      needsVerification: true,
+      autoComplete: getAutoCompleteRules(areaId, id)
+    }))
   };
+}
+
+
+function getAutoCompleteRules(areaId: string, objectiveId: string) {
+  if (areaId === 'act3-jungle-ruins' && objectiveId === 'act3-jungle-ruins-silverfist-passive') {
+    return [{ type: 'reward-acquired' as const, areaId, includes: ['패시브 스킬 포인트 2포인트를 획득했습니다'], confidence: 'high' as const }];
+  }
+  if (areaId === 'act3-jiquanis-machinarium' && objectiveId === 'act3-machinarium-blackjaw-fire') {
+    return [{ type: 'reward-acquired' as const, areaId, includes: ['[Resistances|화염] 저항 +10%'], confidence: 'high' as const }];
+  }
+  if (areaId === 'act3-azak-bog' && objectiveId === 'act3-tribal-vengeance-ignagduk') {
+    return [{ type: 'reward-acquired' as const, areaId, includes: ['[Spirit|정신력] +30'], confidence: 'high' as const }];
+  }
+  if (areaId === 'act3-aggorat' && objectiveId === 'act3-aggorat-sacrificial-heart') {
+    return [{ type: 'reward-acquired' as const, areaId, includes: ['패시브 스킬 포인트 2포인트를 획득했습니다'], confidence: 'high' as const }];
+  }
+  return undefined;
 }
