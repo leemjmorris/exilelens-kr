@@ -108,6 +108,18 @@ describe('campaign quest data coverage', () => {
     ]);
   });
 
+  it('shows Plunder\'s Point Korean alias and Lonely Outpost objective in the current area checklist', () => {
+    const plundersPoint = areaDefinitions.find((area) => area.id === 'act4-plunders-point');
+    const checklist = areaChecklists.find((entry) => entry.areaId === 'act4-plunders-point');
+
+    expect(plundersPoint?.logNamesKo).toContain('약탈의 거점');
+    expect(checklist).toBeDefined();
+    expect(checklist?.objectives.map((objective) => objective.labelKo)).toContain(
+      '외딴 초소: 약탈의 거점에서 외딴 초소 퀘스트 목표 확인'
+    );
+    expect(checklist?.objectives.find((objective) => objective.id === 'act4-lonely-outpost')?.kind).toBe('optional');
+  });
+
   it('covers 0.5.0 must-do permanent reward and unlock objectives from poe2db quest tables', () => {
     const requiredObjectiveIds = new Set(
       areaChecklists.flatMap((checklist) => checklist.objectives.filter((objective) => objective.kind === 'required').map((objective) => objective.id))
