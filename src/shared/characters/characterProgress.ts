@@ -10,10 +10,12 @@ export interface CharacterProgressEntry {
 export interface CharacterProgressState {
   activeCharacterId?: string;
   characters: Record<string, CharacterProgressEntry>;
+  discoveredCharacterNames?: string[];
+  lastCharacterScanAt?: string;
 }
 
 export function createEmptyCharacterProgressState(): CharacterProgressState {
-  return { activeCharacterId: undefined, characters: {} };
+  return { activeCharacterId: undefined, characters: {}, discoveredCharacterNames: [] };
 }
 
 export function isCharacterOnboardingRequired(state: CharacterProgressState): boolean {
@@ -40,8 +42,22 @@ export function createOrSelectCharacter(state: CharacterProgressState, rawName: 
         createdAt: new Date().toISOString(),
         progress: createEmptyQuestProgress()
       }
-    }
+    },
+    discoveredCharacterNames: state.discoveredCharacterNames ?? [],
+    lastCharacterScanAt: state.lastCharacterScanAt
   };
+}
+
+export function mergeDiscoveredCharacterNames(state: CharacterProgressState, names: string[], scannedAt = new Date().toISOString()): CharacterProgressState {
+  const seen = new Set<string>();
+  const discoveredCharacterNames: string[] = [];
+  for (const name of [...(state.discoveredCharacterNames ?? []), ...names]) {
+    const trimmed = name.trim();
+    if (trimmed.length === 0 || seen.has(trimmed)) continue;
+    seen.add(trimmed);
+    discoveredCharacterNames.push(trimmed);
+  }
+  return { ...state, discoveredCharacterNames, lastCharacterScanAt: scannedAt };
 }
 
 export function updateActiveCharacterProgress(state: CharacterProgressState, progress: QuestProgress): CharacterProgressState {
@@ -76,7 +92,12 @@ export function normalizeCharacterProgressState(input: unknown): CharacterProgre
     const active = typeof record.activeCharacterId === 'string' && characters[record.activeCharacterId] != null
       ? record.activeCharacterId
       : Object.keys(characters)[0];
-    return { activeCharacterId: active, characters };
+    return {
+      activeCharacterId: active,
+      characters,
+      discoveredCharacterNames: Array.isArray(record.discoveredCharacterNames) ? normalizeDiscoveredNames(record.discoveredCharacterNames) : [],
+      lastCharacterScanAt: typeof record.lastCharacterScanAt === 'string' ? record.lastCharacterScanAt : undefined
+    };
   }
 
   const legacyProgress = isRecord(record.legacyProgress) ? record.legacyProgress as Partial<QuestProgress> as QuestProgress : null;
@@ -91,7 +112,8 @@ export function normalizeCharacterProgressState(input: unknown): CharacterProgre
           createdAt: new Date().toISOString(),
           progress: normalizeManualQuestProgress(legacyProgress)
         }
-      }
+      },
+      discoveredCharacterNames: []
     };
   }
 
@@ -100,4 +122,17 @@ export function normalizeCharacterProgressState(input: unknown): CharacterProgre
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value != null && !Array.isArray(value);
+}
+
+function normalizeDiscoveredNames(values: unknown[]): string[] {
+  const seen = new Set<string>();
+  const names: string[] = [];
+  for (const value of values) {
+    if (typeof value !== 'string') continue;
+    const name = value.trim();
+    if (name.length === 0 || seen.has(name)) continue;
+    seen.add(name);
+    names.push(name);
+  }
+  return names;
 }

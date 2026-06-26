@@ -35,6 +35,7 @@ contextBridge.exposeInMainWorld('exileLens', {
   getQuestProgress: () => ipcRenderer.invoke('quest:get-progress') as Promise<QuestProgress>,
   updateQuestProgress: (progress: QuestProgress) => ipcRenderer.invoke('quest:update-progress', progress) as Promise<QuestProgress>,
   getCharacterProgressState: () => ipcRenderer.invoke('character:get-state') as Promise<CharacterProgressState>,
+  rescanCharacters: () => ipcRenderer.invoke('character:rescan') as Promise<CharacterProgressState>,
   createOrSelectCharacter: (name: string) => ipcRenderer.invoke('character:create-or-select', name) as Promise<CharacterProgressState>,
   getDiagnostics: () => ipcRenderer.invoke('diagnostics:get') as Promise<AppDiagnostics>,
   logDiagnostic: (message: string, details?: unknown) => ipcRenderer.invoke('diagnostics:log', message, details) as Promise<void>,

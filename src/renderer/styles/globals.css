@@ -250,12 +250,34 @@ button {
   padding: 7px 9px;
 }
 
+.discovered-character-panel {
+  display: grid;
+  gap: 7px;
+  border: 1px solid rgba(56, 189, 248, 0.14);
+  border-radius: 10px;
+  padding: 8px;
+  background: rgba(2, 6, 23, 0.24);
+}
+
+.section-title-row.compact h3 {
+  margin: 0;
+  font-size: 12px;
+  color: rgba(226, 232, 240, 0.78);
+}
+
+.discovered-character-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
 .character-create-row {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 7px;
 }
 
+.discovered-character-list button,
 .character-create-row button,
 .settings-row button,
 .section-title-row button {

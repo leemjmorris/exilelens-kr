@@ -22,6 +22,7 @@ declare global {
       getQuestProgress: () => Promise<QuestProgress>;
       updateQuestProgress: (progress: QuestProgress) => Promise<QuestProgress>;
       getCharacterProgressState: () => Promise<CharacterProgressState>;
+      rescanCharacters: () => Promise<CharacterProgressState>;
       createOrSelectCharacter: (name: string) => Promise<CharacterProgressState>;
       getDiagnostics: () => Promise<AppDiagnostics>;
       logDiagnostic: (message: string, details?: unknown) => Promise<void>;

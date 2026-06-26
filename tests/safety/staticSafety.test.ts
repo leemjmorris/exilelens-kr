@@ -91,6 +91,8 @@ describe('static safety guardrails', () => {
     expect(appSource).not.toContain('선택 미완료');
     expect(appSource).toContain('액트 가이드');
     expect(appSource).toContain('캐릭터를 먼저 선택하세요');
+    expect(appSource).toContain('자동으로 찾은 캐릭터');
+    expect(appSource).toContain('재검사');
     expect(appSource).toContain('새 캐릭터 추가');
     expect(appSource).toContain('activeCharacterId');
     expect(appSource).toContain('getCharacterProgressState');

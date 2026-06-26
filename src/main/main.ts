@@ -4,6 +4,8 @@ import { join } from 'node:path';
 import { createOverlayWindow, type OverlayPanel } from './windows/overlayWindow';
 import { registerHotkeys, type HotkeyRegistrationResult } from './hotkeys/registerHotkeys';
 import { createAreaWatcher, type AreaWatcher } from './poe/areaWatcher';
+import { extractCharacterNamesFromClientLogLines } from './poe/characterDiscovery';
+import { readRecentClientLogLines } from './poe/clientLog';
 import { createQuestProgressStore } from './poe/questProgressStore';
 import { createSettingsStore } from './settings/settingsStore';
 import { areaDefinitions, areaChecklists, getDemoAreaDetection } from '../shared/quests/data';
@@ -16,6 +18,7 @@ import {
   createEmptyCharacterProgressState,
   createOrSelectCharacter,
   getActiveCharacterProgress,
+  mergeDiscoveredCharacterNames,
   updateActiveCharacterProgress,
   type CharacterProgressState
 } from '../shared/characters/characterProgress';
@@ -118,6 +121,25 @@ function getActiveProgressOrEmpty(): QuestProgress {
 function sendCharacterState(): void {
   sendToOverlayWindows('character:state', characterProgressState);
   sendToOverlayWindows('quest:progress', getActiveProgressOrEmpty());
+}
+
+async function scanCharactersFromClientLog(): Promise<CharacterProgressState> {
+  if (!shouldWatchClientLog(appSettings)) return characterProgressState;
+  try {
+    const lines = await readRecentClientLogLines(appSettings.clientLogPath, 2 * 1024 * 1024);
+    const names = extractCharacterNamesFromClientLogLines(lines);
+    characterProgressState = mergeDiscoveredCharacterNames(characterProgressState, names);
+    await saveQuestProgress?.(characterProgressState);
+    writeAppLog('character discovery scan completed', { found: names.length, discoveredCharacterNames: characterProgressState.discoveredCharacterNames ?? [] });
+    sendCharacterState();
+    return characterProgressState;
+  } catch (error) {
+    characterProgressState = mergeDiscoveredCharacterNames(characterProgressState, []);
+    await saveQuestProgress?.(characterProgressState);
+    writeAppLog('character discovery scan failed', serializeError(error));
+    sendCharacterState();
+    return characterProgressState;
+  }
 }
 
 function setWindowClickThrough(win: BrowserWindow | null, enabled: boolean): void {
@@ -366,6 +388,7 @@ async function createApp(): Promise<void> {
     return appSettings;
   });
   ipcMain.handle('character:get-state', () => characterProgressState);
+  ipcMain.handle('character:rescan', () => scanCharactersFromClientLog());
   ipcMain.handle('character:create-or-select', async (_event, name: string) => {
     characterProgressState = createOrSelectCharacter(characterProgressState, name);
     await progressStore.save(characterProgressState);
@@ -381,6 +404,7 @@ async function createApp(): Promise<void> {
   });
 
   startAreaWatcher(appSettings);
+  void scanCharactersFromClientLog();
 }
 
 function normalizeSettingsForKnownAreas(settings: Partial<AppSettings> | null | undefined): AppSettings {

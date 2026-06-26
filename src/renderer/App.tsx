@@ -172,6 +172,7 @@ function App(): React.ReactElement {
   const onboardingRequired = isCharacterOnboardingRequired(characterState);
   const activeCharacter = characterState.activeCharacterId != null ? characterState.characters[characterState.activeCharacterId] : undefined;
   const characterList = Object.values(characterState.characters);
+  const discoveredCharacterNames = characterState.discoveredCharacterNames ?? [];
 
   async function toggleObjective(areaId: string, objectiveId: string): Promise<void> {
     const nextProgress = toggleObjectiveCompletion(progress, areaId, objectiveId);
@@ -187,22 +188,33 @@ function App(): React.ReactElement {
   async function createOrSelectCharacter(name: string): Promise<void> {
     try {
       const optimistic = createOrSelectCharacterLocally(characterState, name);
-      setCharacterState(optimistic);
-      const optimisticProgress = getActiveCharacterProgress(optimistic) ?? createEmptyQuestProgress();
-      setProgress(optimisticProgress);
-      saveLocalProgress(optimisticProgress);
+      applyCharacterState(optimistic);
       const persisted = await window.exileLens?.createOrSelectCharacter?.(name);
-      if (persisted != null) {
-        setCharacterState(persisted);
-        const activeProgress = getActiveCharacterProgress(persisted) ?? createEmptyQuestProgress();
-        setProgress(activeProgress);
-        saveLocalProgress(activeProgress);
-      }
+      if (persisted != null) applyCharacterState(persisted);
       setNewCharacterName('');
       setStatus(`${name.trim()} 캐릭터 선택됨`);
     } catch (error) {
       setStatus(error instanceof Error ? error.message : '캐릭터 선택 실패');
     }
+  }
+
+  async function rescanCharacters(): Promise<void> {
+    setStatus('캐릭터 재검사 중...');
+    const rescanned = await window.exileLens?.rescanCharacters?.();
+    if (rescanned != null) {
+      applyCharacterState(rescanned);
+      const count = rescanned.discoveredCharacterNames?.length ?? 0;
+      setStatus(count > 0 ? `자동으로 찾은 캐릭터 ${count}명` : '자동 감지된 캐릭터가 없습니다. 직접 추가할 수 있습니다.');
+    } else {
+      setStatus('재검사 기능을 사용할 수 없습니다. 직접 추가하세요.');
+    }
+  }
+
+  function applyCharacterState(nextState: CharacterProgressState): void {
+    setCharacterState(nextState);
+    const activeProgress = getActiveCharacterProgress(nextState) ?? createEmptyQuestProgress();
+    setProgress(activeProgress);
+    saveLocalProgress(activeProgress);
   }
 
   async function saveSettings(nextSettings: AppSettings): Promise<void> {
@@ -287,6 +299,21 @@ function App(): React.ReactElement {
             {characterList.map((character) => <option key={character.id} value={character.id}>{character.displayName}</option>)}
           </select>
         ) : null}
+        <div className="discovered-character-panel">
+          <div className="section-title-row compact">
+            <h3>자동으로 찾은 캐릭터</h3>
+            <button type="button" onClick={() => void rescanCharacters()}>재검사</button>
+          </div>
+          {discoveredCharacterNames.length > 0 ? (
+            <div className="discovered-character-list">
+              {discoveredCharacterNames.map((name) => (
+                <button key={name} type="button" onClick={() => void createOrSelectCharacter(name)}>{name}</button>
+              ))}
+            </div>
+          ) : (
+            <p className="empty-note">최근 Client.txt에서 캐릭터명을 찾지 못했습니다. 방금 만든 캐릭터는 직접 추가하면 바로 시작할 수 있습니다.</p>
+          )}
+        </div>
         <form className="character-create-row" onSubmit={(event) => { event.preventDefault(); void createOrSelectCharacter(newCharacterName); }}>
           <input value={newCharacterName} onChange={(event) => setNewCharacterName(event.target.value)} placeholder="방금 만든 캐릭터 이름 입력" />
           <button type="submit">새 캐릭터 추가</button>

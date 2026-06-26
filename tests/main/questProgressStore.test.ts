@@ -15,7 +15,7 @@ describe('quest progress store with character profiles', () => {
 
     const state = await store.load();
 
-    expect(state).toEqual({ activeCharacterId: undefined, characters: {} });
+    expect(state).toEqual({ activeCharacterId: undefined, characters: {}, discoveredCharacterNames: [] });
   });
 
   it('saves and reloads character-specific progress', async () => {

@@ -3,6 +3,7 @@ import { createEmptyQuestProgress, toggleObjectiveCompletion } from '../../src/s
 import {
   createEmptyCharacterProgressState,
   createOrSelectCharacter,
+  mergeDiscoveredCharacterNames,
   getActiveCharacterProgress,
   isCharacterOnboardingRequired,
   normalizeCharacterProgressState,
@@ -47,5 +48,21 @@ describe('character progress state', () => {
 
   it('rejects blank character names instead of creating invisible list entries', () => {
     expect(() => createOrSelectCharacter(createEmptyCharacterProgressState(), '   ')).toThrow('캐릭터 이름을 입력하세요');
+  });
+
+  it('stores auto-discovered candidates without forcing them to be selected', () => {
+    const state = mergeDiscoveredCharacterNames(createEmptyCharacterProgressState(), ['HappyMonk', 'HappyWitch', 'HappyMonk']);
+
+    expect(state.discoveredCharacterNames).toEqual(['HappyMonk', 'HappyWitch']);
+    expect(isCharacterOnboardingRequired(state)).toBe(true);
+  });
+
+  it('keeps manual creation available even after auto-discovered candidates exist', () => {
+    const discovered = mergeDiscoveredCharacterNames(createEmptyCharacterProgressState(), ['HappyMonk']);
+    const manual = createOrSelectCharacter(discovered, 'BrandNewCharacter');
+
+    expect(manual.activeCharacterId).toBe('BrandNewCharacter');
+    expect(manual.discoveredCharacterNames).toEqual(['HappyMonk']);
+    expect(Object.keys(manual.characters)).toEqual(['BrandNewCharacter']);
   });
 });
