@@ -60,7 +60,40 @@ describe('static safety guardrails', () => {
     expect(rendererSource).toContain('elementFromPoint');
   });
 
-  it('keeps a system tray icon while toggling taskbar visibility with split overlay windows', () => {
+  it('is an act-guide-only overlay with one guide window and no trade panel', () => {
+    const mainSource = readFileSync(join(sourceRoot, 'main', 'main.ts'), 'utf8');
+    const windowSource = readFileSync(join(sourceRoot, 'main', 'windows', 'overlayWindow.ts'), 'utf8');
+    const preloadSource = readFileSync(join(sourceRoot, 'preload', 'index.ts'), 'utf8');
+    const appSource = readFileSync(join(sourceRoot, 'renderer', 'App.tsx'), 'utf8');
+    const packageSource = readFileSync(join(process.cwd(), 'package.json'), 'utf8');
+
+    expect(mainSource).toContain("guideWindow = createOverlayWindow({ panel: 'guide'");
+    expect(mainSource).not.toContain('tradeWindow');
+    expect(mainSource).not.toContain('questRequiredWindow');
+    expect(mainSource).not.toContain('questOptionalWindow');
+    expect(mainSource).not.toContain('questDetailWindow');
+    expect(mainSource).not.toContain("item:capture");
+    expect(mainSource).not.toContain("trade:search-official");
+    expect(mainSource).not.toContain("trade:get-leagues");
+
+    expect(windowSource).toContain("export type OverlayPanel = 'guide'");
+    expect(windowSource).not.toContain("'trade'");
+    expect(windowSource).not.toContain("'quest-required'");
+    expect(windowSource).not.toContain("'quest-optional'");
+    expect(windowSource).not.toContain("'quest-detail'");
+
+    expect(preloadSource).not.toContain('captureItemText');
+    expect(preloadSource).not.toContain('searchOfficialTrade');
+    expect(preloadSource).not.toContain('getTradeLeagues');
+    expect(appSource).not.toContain("panel === 'trade'");
+    expect(appSource).not.toContain('시세');
+    expect(appSource).not.toContain('optional');
+    expect(appSource).not.toContain('선택 미완료');
+    expect(appSource).toContain('액트 가이드');
+    expect(packageSource).toContain('POE2 Korean act guide overlay for essential campaign rewards');
+  });
+
+  it('keeps a movable/resizable transparent guide HUD without app-like multi-panel chrome', () => {
     const mainSource = readFileSync(join(sourceRoot, 'main', 'main.ts'), 'utf8');
     const windowSource = readFileSync(join(sourceRoot, 'main', 'windows', 'overlayWindow.ts'), 'utf8');
     const appSource = readFileSync(join(sourceRoot, 'renderer', 'App.tsx'), 'utf8');
@@ -68,96 +101,25 @@ describe('static safety guardrails', () => {
 
     expect(mainSource).toContain('new Tray(');
     expect(mainSource).toContain('createAppTray()');
-    expect(mainSource).toContain("questAreaWindow = createOverlayWindow({ panel: 'quest-area'");
-    expect(mainSource).toContain("questRequiredWindow = createOverlayWindow({ panel: 'quest-required'");
-    expect(mainSource).toContain("questOptionalWindow = createOverlayWindow({ panel: 'quest-optional'");
-    expect(mainSource).toContain("questDetailWindow = createOverlayWindow({ panel: 'quest-detail'");
-    expect(mainSource).toContain("tradeWindow = createOverlayWindow({ panel: 'trade'");
     expect(mainSource).toContain('win.setSkipTaskbar(false)');
     expect(mainSource).toContain('win.setSkipTaskbar(true)');
     expect(mainSource).toContain('savePanelBounds()');
     expect(mainSource).toContain("ipcMain.handle('overlay:resize-by'");
     expect(mainSource).toContain("ipcMain.handle('overlay:move-by'");
-    expect(mainSource).toContain('resizeWindowBy(getSenderWindow(event)');
-    expect(mainSource).toContain('moveWindowBy(getSenderWindow(event)');
     expect(windowSource).toContain('show: false');
     expect(windowSource).toContain('skipTaskbar: true');
     expect(windowSource).toContain('resizable: true');
-    expect(windowSource).toContain('alwaysOnTop: isQuestPanel(options.panel)');
-    expect(windowSource).toContain("'quest-area'");
-    expect(windowSource).toContain("'quest-required'");
-    expect(windowSource).toContain("'quest-optional'");
-    expect(appSource).toContain("panel === 'trade'");
-    expect(appSource).toContain('aria-label="시세 창 닫기"');
-    expect(appSource).toContain('QuestResizeGrip');
+    expect(windowSource).toContain('alwaysOnTop: true');
+    expect(appSource).toContain('GuideResizeGrip');
     expect(appSource).toContain('resizeOverlayBy');
     expect(appSource).toContain('moveOverlayBy');
     expect(appSource).toContain('startHudMove');
-    expect(appSource).toContain("target.closest('button, input, select, textarea, a, .objective, .quest-resize-grip");
-    expect(appSource).toContain('aria-label="퀘스트 창 크기 조절"');
-    expect(appSource).toContain('quest-hud-shell');
-    expect(appSource).toContain('QuestHudPanel');
-    expect(appSource).toContain('quest-hud-widget-area');
-    expect(appSource).toContain('quest-hud-widget-list');
-    expect(appSource).toContain('hud-drag-strip');
-    expect(cssSource).toContain('.quest-hud-shell');
+    expect(appSource).toContain('guide-hud-shell');
+    expect(appSource).toContain('guide-objective-list');
+    expect(cssSource).toContain('.guide-hud-shell');
     expect(cssSource).toContain('backdrop-filter: blur(16px) saturate(128%)');
-    expect(cssSource).toContain('rgba(2, 6, 23, 0.48)');
-    expect(cssSource).toContain('.quest-hud-shell::before');
-    expect(cssSource).toContain('.quest-hud-widget');
     expect(cssSource).toContain('cursor: move');
-    expect(cssSource).toContain('.hud-drag-strip');
-    expect(cssSource).toContain('-webkit-app-region: drag');
-    expect(cssSource).toContain('-webkit-app-region: no-drag');
-    expect(cssSource).toContain('.quest-resize-grip');
-    expect(cssSource).toContain('width: 22px');
-    expect(cssSource).toContain('height: 22px');
-    expect(cssSource).toContain('border: 0');
-    expect(cssSource).toContain('.quest-resize-grip::before');
-    expect(cssSource).toContain('.quest-resize-grip::after');
+    expect(cssSource).toContain('.guide-resize-grip');
     expect(cssSource).toContain('cursor: nwse-resize');
-  });
-
-  it('uses a single fixed-header content scroller in the overlay shell', () => {
-    const appSource = readFileSync(join(sourceRoot, 'renderer', 'App.tsx'), 'utf8');
-    const cssSource = readFileSync(join(sourceRoot, 'renderer', 'styles', 'globals.css'), 'utf8');
-
-    expect(appSource).toContain('className="overlay-content"');
-    expect(cssSource).toMatch(/\.overlay-shell\s*\{[\s\S]*overflow:\s*hidden;/);
-    expect(cssSource).toMatch(/\.overlay-content\s*\{[\s\S]*overflow-y:\s*auto;/);
-    expect(cssSource).not.toMatch(/\.overlay-header\s*\{[\s\S]*position:\s*sticky;/);
-  });
-
-  it('shows required and optional quest buckets in the all-area progress board', () => {
-    const appSource = readFileSync(join(sourceRoot, 'renderer', 'App.tsx'), 'utf8');
-    const cssSource = readFileSync(join(sourceRoot, 'renderer', 'styles', 'globals.css'), 'utf8');
-
-    expect(appSource).toContain('필수 미완료');
-    expect(appSource).toContain('선택 미완료');
-    expect(appSource).toContain('필수 완료');
-    expect(appSource).toContain('선택 완료');
-    expect(appSource).toContain('area-progress-badges');
-    expect(appSource).toContain('objective-kind required-badge');
-    expect(appSource).toContain('quest-view-switch');
-    expect(appSource).toContain('quest-hud-header-block');
-    expect(appSource).toContain('quest-hud-summary');
-    expect(appSource).toContain('hud-checklist-grid');
-    expect(appSource).toContain('hud-correction-drawer');
-    expect(appSource).toContain('지역 보정 닫기');
-    expect(appSource).toContain('현재 지역 퀘스트');
-    expect(appSource).toContain('전체 지역 현황');
-    expect(appSource).toContain("questView === 'current'");
-    expect(appSource).toContain("questView === 'all'");
-    expect(cssSource).toContain('.quest-view-switch');
-    expect(cssSource).toContain('.quest-hud-header-block');
-    expect(cssSource).toContain('.hud-source-dot');
-    expect(cssSource).toContain('.hud-actions');
-    expect(cssSource).toContain('.hud-objective');
-    expect(cssSource).toContain('.hud-correction-drawer');
-    expect(cssSource).not.toContain('.quest-hud-card');
-    expect(cssSource).not.toContain('.compact-area-override-card');
-    expect(cssSource).toContain('.active-view');
-    expect(cssSource).toContain('.required-alert');
-    expect(cssSource).toContain('.optional-badge');
   });
 });

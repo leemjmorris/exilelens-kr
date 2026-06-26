@@ -13,31 +13,29 @@ function createRegistrar(registerImpl?: (accelerator: string) => boolean): Short
   };
 }
 
-const EXPECTED_HOTKEYS = ['F6', 'Ctrl+Shift+D', 'Ctrl+Shift+Q', 'Alt+O', 'Alt+D', 'Alt+Q'];
+const EXPECTED_HOTKEYS = ['F6', 'Ctrl+Shift+Q', 'Alt+Q'];
 
 describe('registerHotkeys', () => {
-  it('registers click-equivalent overlay hotkeys and never Escape globally', () => {
+  it('registers only act-guide overlay hotkeys and never trade/detail/global Escape hotkeys', () => {
     const registrar = createRegistrar();
 
     const results = registerHotkeys(
       {
         toggleOverlay: vi.fn(),
-        showItemOverlay: vi.fn(),
-        showQuestOverlay: vi.fn(),
-        showQuestDetailOverlay: vi.fn()
+        showGuideOverlay: vi.fn()
       },
       registrar
     );
 
     expect(registrar.registered).toEqual(EXPECTED_HOTKEYS);
     expect(registrar.registered).not.toContain('Escape');
+    expect(registrar.registered).not.toContain('Ctrl+Shift+D');
+    expect(registrar.registered).not.toContain('Alt+D');
+    expect(registrar.registered).not.toContain('Alt+O');
     expect(results).toEqual([
       { accelerator: 'F6', action: 'toggleOverlay', registered: true },
-      { accelerator: 'Ctrl+Shift+D', action: 'showItemOverlay', registered: true },
-      { accelerator: 'Ctrl+Shift+Q', action: 'showQuestOverlay', registered: true },
-      { accelerator: 'Alt+O', action: 'showQuestDetailOverlay', registered: true },
-      { accelerator: 'Alt+D', action: 'showItemOverlay', registered: true },
-      { accelerator: 'Alt+Q', action: 'showQuestOverlay', registered: true }
+      { accelerator: 'Ctrl+Shift+Q', action: 'showGuideOverlay', registered: true },
+      { accelerator: 'Alt+Q', action: 'showGuideOverlay', registered: true }
     ]);
   });
 
@@ -47,9 +45,7 @@ describe('registerHotkeys', () => {
     const results = registerHotkeys(
       {
         toggleOverlay: vi.fn(),
-        showItemOverlay: vi.fn(),
-        showQuestOverlay: vi.fn(),
-        showQuestDetailOverlay: vi.fn()
+        showGuideOverlay: vi.fn()
       },
       registrar
     );

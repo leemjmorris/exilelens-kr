@@ -2,7 +2,7 @@ export type AppMode = 'demo' | 'client_log' | 'manual_override';
 
 export interface HotkeyDiagnostic {
   accelerator: string;
-  action: 'toggleOverlay' | 'showItemOverlay' | 'showQuestOverlay' | 'showQuestDetailOverlay';
+  action: 'toggleOverlay' | 'showGuideOverlay';
   registered: boolean;
 }
 

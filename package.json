@@ -2,7 +2,7 @@
   "name": "exilelens-kr",
   "productName": "ExileLens KR",
   "version": "0.1.0",
-  "description": "POE2 Korean overlay for item price checks and area-aware quest checklists.",
+  "description": "POE2 Korean act guide overlay for essential campaign rewards.",
   "main": "out/main/index.js",
   "type": "module",
   "private": true,
