@@ -1,5 +1,5 @@
 import type { AreaDefinition } from '../areaMatcher';
-import type { AreaChecklist } from '../checklist';
+import type { AreaChecklist, ChecklistObjective } from '../checklist';
 
 // POE2 Act 3 area seed data. Korean names are sourced from poe2db.tw/kr page titles on 2026-06-19.
 // Quest linkage is based on poe2wiki quest pages/category data collected on 2026-06-19; KR quest wording remains needsVerification.
@@ -25,49 +25,27 @@ export const act3Areas: AreaDefinition[] = [
   { id: 'act3-black-chambers', act: 3, nameKo: '검은 내실', nameEn: 'The Black Chambers', logNamesKo: ['검은 내실', 'The Black Chambers'], areaIdAliases: ['g3_17'], isTown: false, hasMapThumbnail: false, needsVerification: true, guideStepIds: ['act3-legacy-black-chambers'] }
 ];
 
-export const act3Checklists: AreaChecklist[] = [
-  objectives('act3-mysterious-refuge', []),
-  objectives('act3-sandswept-marsh', [
-    ['act3-sandswept-marsh-entry', '바알의 유산: Sandswept Marsh 진입 후 지구라트 야영지 도달', 'required', 'Act 3 메인 진입'],
-    ['act3-sandswept-marsh-orok-campfire', '모래에 휩쓸린 습지: Orok Campfire 바구니 클릭으로 하급 쥬얼러 오브 보상 챙기기', 'optional', '0.5.0 기준 일회성 보상']
-  ]),
-  objectives('act3-ziggurat-encampment', [
-    ['act3-ziggurat-legacy-hub', '바알의 유산: Alva/Servi/Oswald 등 Act 3 허브 대화 확인', 'required', 'Act 3 메인 허브'],
-    ['act3-slithering-dead-turn-in', '기어가는 망자: Venom Draught 사용/보고 확인', 'optional', 'Venom Crypts 선택 보상'],
-    ['act3-treasures-utzaal-turn-in', '웃자알의 보물: Oswald에게 Molten Vault 보상 보고', 'optional', 'Molten Vault 선택 퀘스트']
-  ]),
-  objective('act3-infested-barrens', 'act3-legacy-infested-barrens', '바알의 유산: Infested Barrens 진행 및 다음 지역 개방', 'required', 'Act 3 메인 루트'),
-  objective('act3-matlan-waterways', 'act3-legacy-matlan-waterways', '바알의 유산: Matlan Waterways 수문/진행 장치 확인', 'required', 'Act 3 메인 루트'),
-  objectives('act3-jungle-ruins', [
-    ['act3-legacy-jungle-ruins', '바알의 유산: Jungle Ruins에서 Alva 관련 진행', 'required', 'Act 3 메인 루트'],
-    ['act3-jungle-ruins-silverfist-passive', '밀림 유적: Mighty Silverfist 처치로 패시브 스킬 2포인트 챙기기', 'required', '0.5.0 기준 꼭 챙길 Act 3 영구 보상']
-  ]),
-  objective('act3-venom-crypts', 'act3-slithering-dead-venom-draught', '기어가는 망자: Venom Crypts 탐험 후 Venom Draught 획득/소모', 'optional', 'Servi 선택 퀘스트'),
-  objectives('act3-chimeral-wetlands', [
-    ['act3-legacy-chimera', '바알의 유산: Xyclucian, the Chimera 처치', 'required', 'Act 3 메인 루트'],
-    ['act3-trials-chaos-ultimatum', '혼돈의 시련: Inscribed Ultimatum 획득 가능 여부 확인', 'optional', 'Trial of Chaos 시작']
-  ]),
-  objectives('act3-jiquanis-machinarium', [
-    ['act3-legacy-machinarium', "바알의 유산: Jiquani's Machinarium 장치/동력 진행", 'required', 'Act 3 메인 루트'],
-    ['act3-machinarium-blackjaw-fire', '지콰니의 기계실: Blackjaw, the Remnant 처치로 화염 저항 +10% 영구 보상 챙기기', 'required', '0.5.0 기준 꼭 챙길 Act 3 영구 보상']
-  ]),
-  objective('act3-jiquanis-sanctum', 'act3-legacy-sanctum', "바알의 유산: Jiquani's Sanctum 목표 완료", 'required', 'Act 3 메인 루트'),
-  objective('act3-azak-bog', 'act3-tribal-vengeance-ignagduk', '부족의 복수: Ignagduk, the Bog Witch 처치로 정신력 +30 챙기기', 'required', '0.5.0 기준 꼭 챙길 Act 3 영구 보상'),
-  objective('act3-drowned-city', 'act3-legacy-drowned-city', '바알의 유산: Drowned City 통과 및 후반부 진입', 'required', 'Act 3 메인 루트'),
-  objective('act3-molten-vault', 'act3-treasures-utzaal-mektul', '웃자알의 보물: Mektul 처치 후 재련 작업대 해금', 'required', '0.5.0 기준 꼭 챙길 Act 3 시스템 해금'),
-  objective('act3-trial-of-chaos', 'act3-trials-chaos-complete', "혼돈의 시련: Trialmaster's Challenges 완료", 'optional', 'Ascendancy/Trial 선택 진행'),
-  objective('act3-apex-of-filth', 'act3-legacy-apex-of-filth', '바알의 유산: Apex of Filth 목표 완료', 'required', 'Act 3 메인 루트'),
-  objective('act3-temple-of-kopec', 'act3-legacy-kopec', '바알의 유산: Temple of Kopec 목표 완료', 'required', 'Act 3 메인 루트'),
-  objectives('act3-utzaal', [
-    ['act3-legacy-utzaal', '바알의 유산: Utzaal 진입 및 후반 메인 진행', 'required', 'Act 3 후반 루트'],
-    ['act3-treasures-utzaal', '웃자알의 보물: Utzaal 보물/Oswald 관련 진행 확인', 'optional', '선택 보상 확인']
-  ]),
-  objectives('act3-aggorat', [
-    ['act3-legacy-aggorat', '바알의 유산: Aggorat 진행', 'required', 'Act 3 후반 루트'],
-    ['act3-aggorat-sacrificial-heart', '아고라트: Sacrificial Heart를 획득해 제단에 바치고 패시브 스킬 2포인트 챙기기', 'required', '0.5.0 기준 꼭 챙길 Act 3 영구 보상']
-  ]),
-  objective('act3-black-chambers', 'act3-legacy-black-chambers', '바알의 유산: Black Chambers 완료 후 Act 4/후속 진행', 'required', 'Act 3 최종 메인 목표')
-];
+const act3EssentialObjectives: Record<string, ChecklistObjective[]> = {
+  'act3-sandswept-marsh': [required('act3-sandswept-marsh-campfire-jewelers-orb', '모래에 휩쓸린 습지: 아자크 모닥불 상자를 열어 하위 쥬얼러 오브 챙기기', '0.5.0 필수 퀘스트 가이드: 액트 3 일반')],
+  'act3-jungle-ruins': [required('act3-jungle-ruins-silverfist-passive', '밀림 유적: 강력한 은빛주먹 처치로 패시브 스킬 2포인트 챙기기', '0.5.0 필수 퀘스트 가이드: 액트 3 일반')],
+  'act3-venom-crypts': [required('act3-venom-crypts-venom-draught-choice', '독액 지하실: 독액 영약을 전달하고 영약 선택 보상 챙기기', '0.5.0 필수 퀘스트 가이드: 액트 3 일반')],
+  'act3-azak-bog': [required('act3-azak-bog-ignagduk-spirit', '아자크 습지대: 습지대 마녀 이그나두크 처치로 정신력 +30 챙기기', '0.5.0 필수 퀘스트 가이드: 액트 3 일반')],
+  'act3-jiquanis-machinarium': [required('act3-machinarium-blackjaw-fire-resistance', '지콰니의 기계실: 잔류하는 기계턱 처치로 화염 저항 +10% 챙기기', '0.5.0 필수 퀘스트 가이드: 액트 3 일반')],
+  'act3-molten-vault': [required('act3-molten-vault-mektul-reforge-bench', '녹아내린 금고: 제련 장인 메크툴 처치로 제련 작업대 해금하기', '0.5.0 필수 퀘스트 가이드: 액트 3 일반')],
+  'act3-aggorat': [required('act3-aggorat-sacrificial-heart-passive', '아고라트: 희생의 심장을 제단에 바쳐 패시브 스킬 2포인트 챙기기', '0.5.0 필수 퀘스트 가이드: 액트 3 일반')]
+};
+
+export const act3Checklists: AreaChecklist[] = act3Areas.map((area) => ({ areaId: area.id, needsVerification: true, objectives: act3EssentialObjectives[area.id] ?? [] }));
+
+function required(id: string, labelKo: string, notesKo: string): ChecklistObjective {
+  const objective: ChecklistObjective = { id, labelKo, kind: 'required', notesKo, needsVerification: true };
+  if (id === 'act3-machinarium-blackjaw-fire-resistance') {
+    objective.autoComplete = [
+      { type: 'reward-acquired', includes: ['[Resistances|화염] 저항 +10%'], areaId: 'act3-jiquanis-machinarium', confidence: 'high' }
+    ];
+  }
+  return objective;
+}
 
 function objective(areaId: string, id: string, labelKo: string, kind: 'required' | 'optional', notesKo: string): AreaChecklist {
   return objectives(areaId, [[id, labelKo, kind, notesKo]]);

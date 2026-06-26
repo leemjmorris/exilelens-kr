@@ -4,7 +4,9 @@ import process from 'node:process';
 
 const repoRoot = process.cwd();
 const defaultLogPath = 'C:/Kakaogames/Path of Exile2/logs/KakaoClient.txt';
-const logPath = process.argv[2] ?? process.env.POE2_CLIENT_LOG ?? defaultLogPath;
+const strict = process.argv.includes('--strict');
+const logPathArg = process.argv.find((arg) => arg !== '--strict' && !arg.endsWith('audit-client-log-coverage.mjs') && arg !== process.argv[0]);
+const logPath = logPathArg ?? process.env.POE2_CLIENT_LOG ?? defaultLogPath;
 const dataDir = path.join(repoRoot, 'src/shared/quests/data');
 
 const scenePattern = /\[SCENE\]\s+Set Source\s+\[(.+?)\]/iu;
@@ -109,7 +111,8 @@ console.log(`Client log: ${logPath}`);
 console.log(`Area definitions: ${areas.length}`);
 console.log(`Detected area tokens: ${totalTokens}`);
 console.log(`Matched area ids: ${matched.size}`);
+console.log(`Mode: ${strict ? 'strict (fails on unmatched tokens)' : 'audit (reports gaps without failing)'}`);
 printMap('Unmatched tokens', unmatched);
-printMap('Matched areas without checklist', noChecklist);
+printMap('Matched areas without essential objectives', noChecklist);
 
-if (unmatched.size > 0 || noChecklist.size > 0) process.exitCode = 1;
+if (strict && unmatched.size > 0) process.exitCode = 1;

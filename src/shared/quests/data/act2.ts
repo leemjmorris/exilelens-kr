@@ -1,5 +1,5 @@
 import type { AreaDefinition } from '../areaMatcher';
-import type { AreaChecklist } from '../checklist';
+import type { AreaChecklist, ChecklistObjective } from '../checklist';
 
 // POE2 Act 2 area seed data. Korean names are sourced from poe2db.tw/kr page titles on 2026-06-19.
 // Quest linkage is based on poe2wiki quest pages/category data collected on 2026-06-19; KR quest wording remains needsVerification.
@@ -24,43 +24,24 @@ export const act2Areas: AreaDefinition[] = [
   { id: 'act2-trial-of-the-sekhemas', act: 2, nameKo: '세케마의 시련', nameEn: 'Trial of the Sekhemas', logNamesKo: ['세케마의 시련', 'Trial of the Sekhemas'], areaIdAliases: ['g2_13'], isTown: false, hasMapThumbnail: false, needsVerification: true, guideStepIds: ['act2-ascent-to-power-trial'] }
 ];
 
-export const act2Checklists: AreaChecklist[] = [
-  objective('act2-vastiri-outskirts', 'act2-earning-passage-rathbreaker', '통행의 자격: Rathbreaker 처치 후 카라반 통행권 확보', 'required', 'Vastiri Outskirts / Rathbreaker / Zarka'),
-  objectives('act2-ardura-caravan', [
-    ['act2-trail-of-corruption-start', '타락의 흔적: 아르듀라 카라반에서 2장 추적 시작', 'required', 'Act 1에서 이어지는 메인 진행'],
-    ['act2-crown-stone-turn-in', '돌의 왕관: Flame Ruby 획득 후 Zarka에게 보고', 'required', 'Titan Grotto 보상 회수'],
-    ['act2-theft-ivory-turn-in', '상아 도둑: Mastodon Tusks 획득 후 Zarka에게 보고', 'required', 'Bone Pits 보상 회수'],
-    ['act2-city-seven-waters-turn-in', '일곱 갈래 물의 도시: Water Goddess 관련 핵심 아이템 보고', 'required', 'Buried Shrines 완료 후 보고']
-  ]),
-  objective('act2-traitors-passage', 'act2-ascent-to-power-balbala', '힘의 상승: Balbala/Djinn Barya 획득', 'optional', 'Ascendancy unlock chain 시작'),
-  objective('act2-halani-gates', 'act2-halani-gates-sandstorm', 'Halani Gates: 모래폭풍 조우 후 Act 2 주요 분기 해금', 'required', '돌의 왕관 / 상아 도둑 / 일곱 갈래 물의 도시 시작 지점'),
-  objective('act2-keth', 'act2-ancient-vows-kabala-relic', '고대의 맹세: Kabala Clan Relic 획득', 'required', '0.5.0 기준 Charm 관련 꼭 챙길 Act 2 영구 보상'),
-  objective('act2-lost-city', 'act2-ancient-vows-lost-city-relic', '고대의 맹세: Serpent 계열 적에게서 Relic 획득 확인', 'required', 'Keth/Lost City 공통 Charm 보상 진행'),
-  objective('act2-buried-shrines', 'act2-city-seven-waters-essence', '일곱 갈래 물의 도시: Azarian 처치 및 핵심 아이템 획득', 'required', 'Buried Shrines 메인 목표'),
-  objectives('act2-mastodon-badlands', [
-    ['act2-theft-ivory-find-bone-pits', '상아 도둑: Bone Pits 입구 찾기', 'required', 'Mastodon Badlands 탐색'],
-    ['act2-well-of-souls-start', '영혼의 우물: Lightless Passage/Well of Souls 진행 확인', 'optional', 'Mastodon Badlands 선택 퀘스트']
-  ]),
-  objectives('act2-bone-pits', [
-    ['act2-theft-ivory-tusks', '상아 도둑: Ekbab/Iktab 처치 후 Mastodon Tusks 획득', 'required', 'Bone Pits 메인 목표'],
-    ['act2-ancient-vows-sun-relic', '고대의 맹세: Sun Clan Relic 획득', 'required', '0.5.0 기준 Charm 관련 꼭 챙길 Act 2 영구 보상']
-  ]),
-  objectives('act2-valley-of-the-titans', [
-    ['act2-crown-stone-ancient-seals', '돌의 왕관: Ancient Seals 활성화 후 Titan Grotto 진입', 'required', 'Valley of the Titans 진행'],
-    ['act2-ancient-vows-medallion', '고대의 맹세: Statue of a Titan 메달리온에 Relics 장착 후 Charm 보상 선택', 'required', '0.5.0 기준 꼭 챙길 Act 2 영구 보상']
-  ]),
-  objective('act2-titan-grotto', 'act2-crown-stone-flame-ruby', '돌의 왕관: Zalmarath 처치 후 Flame Ruby 획득', 'required', 'Titan Grotto 메인 목표'),
-  objective('act2-deshar', 'act2-traditions-toll-final-letter', "관례의 대가: Final Letter를 찾아 Shambrin에게 전달하고 패시브 스킬 2포인트 챙기기", 'required', '0.5.0 기준 꼭 챙길 Act 2 영구 보상'),
-  objective('act2-path-of-mourning', 'act2-path-mourning-route', 'Path of Mourning: Deshar 첨탑 방향 메인 루트 진행', 'required', '메인 동선 확인용'),
-  objectives('act2-spires-of-deshar', [
-    ['act2-spires-route', 'The Spires of Deshar: Dreadnought 방향 진행', 'required', '메인 동선 확인용'],
-    ['act2-spires-garukhan-lightning', '데샤르의 첨탑: 가루칸 성소 클릭으로 번개 저항 +10% 영구 보상 챙기기', 'required', '0.5.0 기준 꼭 챙길 Act 2 영구 보상']
-  ]),
-  objective('act2-mawdun-quarry', 'act2-mawdun-quarry-route', 'Mawdun Quarry: Mawdun Mine 방향 진행', 'required', '메인 동선 확인용'),
-  objective('act2-mawdun-mine', 'act2-mawdun-mine-jamanra', 'Mawdun Mine: Jamanra 추적 루트 진행', 'required', 'Dreadnought 진입 전 메인 동선'),
-  objective('act2-dreadnought', 'act2-dreadnought-jamanra', 'Dreadnought: Jamanra, the Risen King 추적 및 Act 3 진행', 'required', 'Act 2 최종 메인 목표'),
-  objective('act2-trial-of-the-sekhemas', 'act2-ascent-to-power-trial', '힘의 상승: Trial of the Sekhemas 완료 및 Ascendancy 포인트 획득', 'optional', '승천 시험')
-];
+const act2EssentialObjectives: Record<string, ChecklistObjective[]> = {
+  'act2-keth': [required('act2-keth-kabala-passive', '케스: 위압자 여왕 카발라 처치로 패시브 스킬 2포인트 챙기기', '0.5.0 필수 퀘스트 가이드: 액트 2 일반')],
+  'act2-valley-of-the-titans': [required('act2-valley-ancient-vows-choice', '거신의 계곡: 카발라/태양 혈족 유물 2개를 성소에 배치하고 성소 선택 보상 챙기기', '0.5.0 필수 퀘스트 가이드: 액트 2 일반')],
+  'act2-deshar': [required('act2-deshar-final-letter-passive', '데샤르: 마지막 편지를 전달하고 패시브 스킬 2포인트 챙기기', '0.5.0 필수 퀘스트 가이드: 액트 2 일반')],
+  'act2-spires-of-deshar': [required('act2-spires-garukhan-lightning-resistance', '데샤르의 첨탑: 가루칸의 자매들 성소를 상호작용해 번개 저항 +10% 챙기기', '0.5.0 필수 퀘스트 가이드: 액트 2 일반')]
+};
+
+export const act2Checklists: AreaChecklist[] = act2Areas.map((area) => ({ areaId: area.id, needsVerification: true, objectives: act2EssentialObjectives[area.id] ?? [] }));
+
+function required(id: string, labelKo: string, notesKo: string): ChecklistObjective {
+  const objective: ChecklistObjective = { id, labelKo, kind: 'required', notesKo, needsVerification: true };
+  if (id === 'act2-spires-garukhan-lightning-resistance') {
+    objective.autoComplete = [
+      { type: 'reward-acquired', includes: ['[Resistances|번개] 저항 +10%'], areaId: 'act2-spires-of-deshar', confidence: 'high' }
+    ];
+  }
+  return objective;
+}
 
 function objective(areaId: string, id: string, labelKo: string, kind: 'required' | 'optional', notesKo: string): AreaChecklist {
   return objectives(areaId, [[id, labelKo, kind, notesKo]]);

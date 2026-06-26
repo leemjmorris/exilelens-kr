@@ -1,5 +1,5 @@
 import type { AreaDefinition } from '../areaMatcher';
-import type { AreaChecklist } from '../checklist';
+import type { AreaChecklist, ChecklistObjective } from '../checklist';
 
 // POE2 Act 1 seed data sourced from poe2wiki public pages on 2026-06-19.
 // See docs/data-sources.md for URLs, scope, and remaining Korean Client.txt verification needs.
@@ -210,254 +210,33 @@ export const act1Areas: AreaDefinition[] = [
   }
 ];
 
-export const act1Checklists: AreaChecklist[] = [
-  {
-    areaId: 'act1-riverbank',
-    needsVerification: true,
-    objectives: [
-      {
-        id: 'act1-riverbank-reaching-clearfell',
-        labelKo: '클리어펠에 도달하기: 불어 터진 방아꾼 처치 후 클리어펠 야영지 진입',
-        kind: 'required',
-        notesKo: 'poe2wiki 퀘스트/진행 표 기반. 한국어 Client.txt 지역명은 검증 필요.',
-        needsVerification: true
-      }
-    ]
-  },
-  {
-    areaId: 'act1-clearfell-encampment',
-    needsVerification: true,
-    objectives: [
-      {
-        id: 'act1-clearfell-encampment-reward',
-        labelKo: '렌리 보상 수령 및 다음 필수 진행 확인',
-        kind: 'required',
-        notesKo: 'Reaching Clearfell/Treacherous Ground 보상 동선. 실제 보상 텍스트는 Client.txt/게임 내 검증 필요.',
-        needsVerification: true
-      },
-      {
-        id: 'act1-clearfell-encampment-cracks',
-        labelKo: '땅에 생긴 균열 선택 퀘스트가 보이면 별도 진행',
-        kind: 'optional',
-        notesKo: 'poe2wiki에 Rise of the Abyssal 전용 선택 퀘스트로 기재됨. 현 리그 노출 여부 검증 필요.',
-        needsVerification: true
-      }
-    ]
-  },
-  {
-    areaId: 'act1-clearfell',
-    needsVerification: true,
-    objectives: [
-      {
-        id: 'act1-clearfell-beira',
-        labelKo: '썩은 무리의 베이라 처치: 냉기 저항 +10% 영구 보상 챙기기',
-        kind: 'required',
-        notesKo: '0.5.0 기준 꼭 챙길 Act 1 영구 보상. poe2db Quest 보상 표 기준.',
-        needsVerification: true
-      }
-    ]
-  },
-  {
-    areaId: 'act1-mud-burrow',
-    needsVerification: true,
-    objectives: [
-      {
-        id: 'act1-mud-burrow-treacherous-ground',
-        labelKo: '변덕스러운 대지: 포식자 처치',
-        kind: 'required',
-        notesKo: 'poe2wiki 퀘스트 페이지 기준.',
-        needsVerification: true
-      }
-    ]
-  },
-  {
-    areaId: 'act1-grelwood',
-    needsVerification: true,
-    objectives: [
-      {
-        id: 'act1-grelwood-secrets',
-        labelKo: '어둠 속의 비밀: 백작의 활동 단서 탐색',
-        kind: 'required',
-        notesKo: 'poe2wiki는 The Grelwood/The Red Vale 관련 퀘스트로 기재. 세부 목표 순서는 검증 필요.',
-        needsVerification: true
-      }
-    ]
-  },
-  {
-    areaId: 'act1-red-vale',
-    needsVerification: true,
-    objectives: [
-      {
-        id: 'act1-red-vale-secrets',
-        labelKo: '어둠 속의 비밀: 룬이 새겨진 물건/오벨리스크 진행 확인',
-        kind: 'required',
-        notesKo: 'poe2wiki 퀘스트 페이지의 Red Vale 및 runed item 설명 기반. 한국어 명칭 검증 필요.',
-        needsVerification: true
-      }
-    ]
-  },
-  {
-    areaId: 'act1-grim-tangle',
-    needsVerification: true,
-    objectives: [
-      {
-        id: 'act1-grim-tangle-mysterious-shade',
-        labelKo: '수수께끼의 그늘: 두건 쓴 자 부활 진행',
-        kind: 'required',
-        notesKo: 'poe2wiki 퀘스트 페이지 기준.',
-        needsVerification: true
-      }
-    ]
-  },
-  {
-    areaId: 'act1-cemetery-of-the-eternals',
-    needsVerification: true,
-    objectives: [
-      {
-        id: 'act1-cemetery-sorrow',
-        labelKo: '돌들 사이의 슬픔: 추모의 문 개방 목표 시작',
-        kind: 'required',
-        notesKo: 'poe2wiki 퀘스트 페이지와 Act 1 진행 표 기준. 키/보스 세부 순서 검증 필요.',
-        needsVerification: true
-      }
-    ]
-  },
-  {
-    areaId: 'act1-tomb-of-the-consort',
-    needsVerification: true,
-    objectives: [
-      {
-        id: 'act1-tomb-consort-sorrow',
-        labelKo: '돌들 사이의 슬픔: 아시니아 관련 목표 확인',
-        kind: 'required',
-        notesKo: 'poe2wiki 진행 표의 보스/지역 연결 기반. 실제 퀘스트 단계명 검증 필요.',
-        needsVerification: true
-      }
-    ]
-  },
-  {
-    areaId: 'act1-mausoleum-of-the-praetor',
-    needsVerification: true,
-    objectives: [
-      {
-        id: 'act1-mausoleum-praetor-sorrow',
-        labelKo: '돌들 사이의 슬픔: 드레이븐 관련 목표 확인',
-        kind: 'required',
-        notesKo: 'poe2wiki 진행 표의 보스/지역 연결 기반. 실제 퀘스트 단계명 검증 필요.',
-        needsVerification: true
-      }
-    ]
-  },
-  {
-    areaId: 'act1-hunting-grounds',
-    needsVerification: true,
-    objectives: [
-      {
-        id: 'act1-hunting-grounds-trail',
-        labelKo: '타락의 흔적 진행 시작 및 오검 방향 루트 확인',
-        kind: 'required',
-        notesKo: 'poe2wiki는 Hunting Grounds 진입 또는 The Mysterious Shade 완료로 시작된다고 기재.',
-        needsVerification: true
-      },
-      {
-        id: 'act1-hunting-grounds-crowbell-passive',
-        labelKo: '까마귀종 처치: 패시브 스킬 2포인트 영구 보상 챙기기',
-        kind: 'required',
-        notesKo: '0.5.0 기준 꼭 챙길 Act 1 영구 보상. poe2db Quest 보상 표의 The Crowbell 기준.',
-        needsVerification: true
-      },
-      {
-        id: 'act1-hunting-grounds-hunt-begins',
-        labelKo: '사냥의 시작: 델윈/아즈메리 위습 소개 퀘스트 확인',
-        kind: 'optional',
-        notesKo: 'poe2wiki 선택 퀘스트 기준. 현 버전/리그에서 노출 조건 검증 필요.',
-        needsVerification: true
-      }
-    ]
-  },
-  {
-    areaId: 'act1-freythorn',
-    needsVerification: true,
-    objectives: [
-      {
-        id: 'act1-freythorn-ominous-altars',
-        labelKo: '불길한 제단: 의식 제단 정화 및 연무 속의 왕 처치로 정신력 +30 챙기기',
-        kind: 'required',
-        notesKo: '0.5.0 기준 꼭 챙길 Act 1 영구 보상. poe2db Quest 보상 표 기준.',
-        needsVerification: true
-      }
-    ]
-  },
-  {
-    areaId: 'act1-lost-catacombs',
-    needsVerification: true,
-    objectives: []
-  },
-  {
-    areaId: 'act1-ogham-farmlands',
-    needsVerification: true,
-    objectives: [
-      {
-        id: 'act1-ogham-farmlands-lost-lute',
-        labelKo: '잃어버린 류트: 우나의 류트를 찾아 패시브 스킬 2포인트 챙기기',
-        kind: 'required',
-        notesKo: '0.5.0 기준 꼭 챙길 Act 1 영구 보상. poe2db Quest 보상 표 기준.',
-        needsVerification: true
-      }
-    ]
-  },
-  {
-    areaId: 'act1-ogham-village',
-    needsVerification: true,
-    objectives: [
-      {
-        id: 'act1-ogham-village-trail',
-        labelKo: '타락의 흔적: 사형 집행자 처치',
-        kind: 'required',
-        notesKo: 'poe2wiki 퀘스트 페이지 기준.',
-        needsVerification: true
-      },
-      {
-        id: 'act1-ogham-village-forge',
-        labelKo: '대장간 찾기: 대장장이 도구를 찾아 분해 작업대 해금',
-        kind: 'required',
-        notesKo: '0.5.0 기준 꼭 챙길 Act 1 시스템 해금. poe2db Quest 보상 표 기준.',
-        needsVerification: true
-      }
-    ]
-  },
-  {
-    areaId: 'act1-manor-ramparts',
-    needsVerification: true,
-    objectives: [
-      {
-        id: 'act1-manor-ramparts-mad-wolf',
-        labelKo: '오검의 미친 늑대: 오검 저택 진입 전 루트 확인',
-        kind: 'required',
-        notesKo: 'poe2wiki Act 1 진행 표 기준.',
-        needsVerification: true
-      }
-    ]
-  },
-  {
-    areaId: 'act1-ogham-manor',
-    needsVerification: true,
-    objectives: [
-      {
-        id: 'act1-ogham-manor-mad-wolf',
-        labelKo: '오검의 미친 늑대: 지오너 백작 처치 후 2장으로 진행',
-        kind: 'required',
-        notesKo: 'poe2wiki Act 1 진행 표는 Ogham Manor, 퀘스트 페이지는 The Iron Manor로 표기되어 출처 간 명칭 차이 있음.',
-        needsVerification: true
-      },
-      {
-        id: 'act1-ogham-manor-candlemass-life',
-        labelKo: '캔들매스 처치: 최대 생명력 +20 영구 보상 챙기기',
-        kind: 'required',
-        notesKo: '0.5.0 기준 꼭 챙길 Act 1 영구 보상. poe2db Quest 보상 표의 Candlemass 기준.',
-        needsVerification: true
-      }
-    ]
-  }
-];
+const act1EssentialObjectives: Record<string, ChecklistObjective[]> = {
+  'act1-clearfell': [
+    required('act1-clearfell-beira-cold-resistance', '클리어펠: 썩은 무리의 베이라 처치로 냉기 저항 +10% 챙기기', '0.5.0 필수 퀘스트 가이드: 액트 1 일반')
+  ],
+  'act1-hunting-grounds': [
+    required('act1-hunting-grounds-crowbell-passive', '사냥터: 까마귀종을 끝까지 추격해 처치하고 패시브 스킬 2포인트 챙기기', '0.5.0 필수 퀘스트 가이드: 액트 1 일반')
+  ],
+  'act1-freythorn': [
+    required('act1-freythorn-king-spirit', '프레이쏜: 의식 제단 4개 완료 후 연무 속의 왕 처치로 정신력 +30 챙기기', '0.5.0 필수 퀘스트 가이드: 액트 1 일반')
+  ],
+  'act1-ogham-farmlands': [
+    required('act1-ogham-farmlands-lute-passive', '오검 농지: 우나의 류트를 전달하고 패시브 스킬 2포인트 챙기기', '0.5.0 필수 퀘스트 가이드: 액트 1 일반')
+  ],
+  'act1-ogham-village': [
+    required('act1-ogham-village-salvage-bench', '오검 마을: 대장장이 도구를 렌리에게 전달해 분해 작업대 해금하기', '0.5.0 필수 퀘스트 가이드: 액트 1 일반')
+  ],
+  'act1-ogham-manor': [
+    required('act1-ogham-manor-candlemass-life', '오검 저택: 살아있는 의례 양초덩어리 처치로 생명력 최대치 +20 챙기기', '0.5.0 필수 퀘스트 가이드: 액트 1 일반')
+  ]
+};
 
+export const act1Checklists: AreaChecklist[] = act1Areas.map((area) => ({
+  areaId: area.id,
+  needsVerification: true,
+  objectives: act1EssentialObjectives[area.id] ?? []
+}));
+
+function required(id: string, labelKo: string, notesKo: string): ChecklistObjective {
+  return { id, labelKo, kind: 'required', notesKo, needsVerification: true };
+}

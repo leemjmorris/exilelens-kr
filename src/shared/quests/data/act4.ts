@@ -1,5 +1,5 @@
 import type { AreaDefinition } from '../areaMatcher';
-import type { AreaChecklist } from '../checklist';
+import type { AreaChecklist, ChecklistObjective } from '../checklist';
 
 // POE2 Act 4 quest/area seed data from poe2wiki quest category pages collected on 2026-06-19.
 // Korean area/quest wording is marked needsVerification until confirmed from the Korean client.
@@ -27,62 +27,7 @@ export const act4Areas: AreaDefinition[] = [
   { id: 'act4-ziggurat-refuge', act: 4, nameKo: '지구라트 피난처', nameEn: 'Ziggurat Refuge', logNamesKo: ['지구라트 피난처', 'Ziggurat Refuge'], isTown: true, hasMapThumbnail: false, needsVerification: true, guideStepIds: ['act4-siege-of-oriath-refuge'] }
 ];
 
-export const act4Checklists: AreaChecklist[] = [
-  objectives('act4-singing-caverns', []),
-  objectives('act4-excavation-site', []),
-  objectives('act4-kingsmarch', [
-    ['act4-search-start', '탐색: 도리아니와 대화 후 킹스마치에서 선박 증서와 선도자 무기 조각 추적 시작', 'required', '4장 메인 허브'],
-    ['act4-follow-tavakai', '타바카이 따라가기: 타바카이 추적 동선 확인', 'required', '4장 메인 연결 퀘스트'],
-    ['act4-greater-blank-runes', '상위 빈 룬: 상위 빈 룬 관련 보상/안내 확인', 'optional', '룬 보상 안내'],
-    ['act4-dark-mists-turn-in', '어둑한 안개: 베리시움 가시와 환영 사건 처리 후 투젠/대닉에게 보고', 'required', 'Kedge Bay/Journey’s End 완료 후'],
-    ['act4-utopia-start', '유토피아: 선교사 로란디스에게서 아라스타스 진행 시작', 'required', '4장 메인 퀘스트'],
-    ['act4-hostile-takeover', '적대적 영역: 앤지에게 은신처 개방 퀘스트 수령', 'optional', '은신처 안내']
-  ]),
-  objectives('act4-abandoned-prison', [
-    ['act4-abandoned-prison-prisoner', '포로: 독방 감금실에서 포로 쓰러뜨리기', 'optional', '버려진 감옥 선택 퀘스트 보상: 목걸이/미가공 스킬 젬. poe2db Act4KillPrisoner 기준'],
-    ['act4-abandoned-prison-forgotten-cell', '잊혀진 감방: 감방 objective 확인', 'optional', '버려진 감옥 지역 Objectives 기준'],
-    ['act4-abandoned-prison-armoury', '병기 창고: 병기 창고 objective 확인', 'optional', '버려진 감옥 지역 Objectives 기준'],
-    ['act4-abandoned-prison-goddess-justice', '정의의 여신: 플라스크 생명력 또는 마나 회복 30% 영구 보상 선택', 'required', '0.5.0 기준 꼭 챙길 Act 4 영구 보상']
-  ]),
-  objective('act4-solitary-confinement', 'act4-abandoned-prison-prisoner', '포로: 강화 문을 열고 포로 처치', 'optional', '버려진 감옥 선택 퀘스트 완료 단계'),
-  objective('act4-kedge-bay', 'act4-dark-mists-kedge-bay', '어둑한 안개: 케지 만 탐험 후 여정의 끝 진입', 'required', '4장 보조 메인 섬 퀘스트'),
-  objectives('act4-journeys-end', [
-    ['act4-dark-mists-captain-hartlin', '어둑한 안개: 하틀린 선장 처치 후 프레야 하틀린/탕마주 사건 처리', 'required', '환영 안내 포함'],
-    ['act4-omniphobia-passive', '여정의 끝: Omniphobia, Fear Manifest 처치로 패시브 스킬 2포인트 보상 챙기기', 'required', '0.5.0 기준 꼭 챙길 Act 4 영구 보상']
-  ]),
-  objectives('act4-isle-of-kin', [
-    ['act4-land-of-the-kin-isle', '혈족의 땅: 혈족의 섬 탐험 후 화산 굴 진입', 'required', '4장 보조 메인 섬 퀘스트'],
-    ['act4-blind-beast', '눈먼 짐승: 눈먼 짐승 처치 후 상위 빈 룬 보상 챙기기', 'required', '0.5.0 기준 꼭 챙길 Act 4 보상']
-  ]),
-  objectives('act4-volcanic-warrens', [
-    ['act4-land-of-the-kin-krutog', '혈족의 땅: 혈족의 군주 크루토그 처치 및 무기 조각 회수', 'required', '탐색 진행 조각'],
-    ['act4-trial-ancestors-eye', '선조들의 심판: 히네코라의 눈 획득 가능 여부 확인', 'optional', '선조들의 심판 unlock']
-  ]),
-  objective('act4-shrike-island', 'act4-shrike-island-boss', '때까치 섬: 하늘의 재앙 처치', 'required', '4장 섬 퀘스트'),
-  objectives('act4-whakapanu-island', [
-    ['act4-whakapanu-diamora', '와카파누 섬: 죽음의 노래 디아모라 처치', 'required', '4장 섬 퀘스트'],
-    ['act4-great-white-one', '거대한 흰 존재: Great White One 처치 후 방어/회피/에너지 보호막 계열 영구 보상 선택', 'required', '0.5.0 기준 꼭 챙길 Act 4 영구 보상'],
-    ['act4-siren-pearl', '사이렌 진주: 사이렌 진주 관련 목표/보상 확인', 'optional', '4장 한국 서버 퀘스트 목록 기준']
-  ]),
-  objective('act4-ngakanu', 'act4-abyss', '심연: 응가카누에서 심연 퀘스트 목표 확인', 'required', '한국 클라이언트 응가카누에서 확인된 퀘스트'),
-  objective('act4-tribal-heart', 'act4-tukohama-chief-tavakai', '토코하마 부족장 타바카이: 부족의 심장부에서 타바카이 관련 목표 확인', 'required', '사용자가 한국 클라이언트 부족의 심장부에서 확인한 퀘스트명'),
-  objectives('act4-plunders-point', [
-    ['act4-forgotten-bounty', '잊힌 하사품: 찢어진 지도 조각/탐험 보상 진행', 'optional', 'Plunder’s Point 선택 퀘스트'],
-    ['act4-lonely-outpost', '외딴 초소: 약탈의 거점에서 외딴 초소 퀘스트 목표 확인', 'optional', '한국 클라이언트 약탈의 거점에서 확인된 선택 퀘스트']
-  ]),
-  objectives('act4-halls-of-the-dead', [
-    ['act4-ngamahu-test', "나마후의 시험: 망자의 전당 시험 완료", 'required', '0.5.0 기준 저항/능력치 선택 영구 보상'],
-    ['act4-tasalio-test', "타살리오의 시험: 망자의 전당 시험 완료", 'required', '0.5.0 기준 저항/능력치 선택 영구 보상'],
-    ['act4-tawhoa-test', "타호아의 시험: 망자의 전당 시험 완료", 'required', '0.5.0 기준 저항/능력치 선택 영구 보상'],
-    ['act4-navali-rest', "나발리의 안식: 최대 마나 5% 영구 보상 챙기기", 'required', '0.5.0 기준 꼭 챙길 Act 4 영구 보상']
-  ]),
-  objective('act4-trial-of-the-ancestors', 'act4-trial-ancestors-complete', '선조들의 심판: 히네코라와 대화해 시험 완료 및 패시브 스킬 2포인트 보상 챙기기', 'required', '0.5.0 기준 꼭 챙길 Act 4 영구 보상'),
-  objective('act4-vaal-ruins', 'act4-fate-of-the-vaal-start', '바알의 운명: 바알 유적에서 알바/도리아니 소환 및 사원 추적', 'optional', '바알의 운명 리그 퀘스트'),
-  objective('act4-atziris-temple', 'act4-fate-of-the-vaal-atziri', '바알의 운명: 왕실 설계자/앗지리 처치 및 금고 개방', 'optional', '바알의 운명 리그 퀘스트'),
-  objective('act4-arastas', 'act4-utopia-arastas', '유토피아: 아라스타스 탐험 후 종복 마리우스와 대화', 'required', '4장 메인 퀘스트'),
-  objective('act4-shoreline-hideout', 'act4-hostile-takeover-hideout', '적대적 영역: 해안 은신처 확보 후 앤지에게 보고', 'optional', '은신처 해금'),
-  objective('act4-ziggurat-refuge', 'act4-siege-of-oriath-refuge', '오리아스 공성전: 세 막간 완료 후 오리아스로 이동, 지구라트 피난처 도달', 'required', 'Act 4 전환/후속 진행')
-];
+export const act4Checklists: AreaChecklist[] = act4Areas.map((area) => objectives(area.id, []));
 
 function objective(areaId: string, id: string, labelKo: string, kind: 'required' | 'optional', notesKo: string): AreaChecklist {
   return objectives(areaId, [[id, labelKo, kind, notesKo]]);
