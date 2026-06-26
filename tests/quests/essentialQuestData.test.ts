@@ -23,7 +23,23 @@ const essentialObjectiveIds = [
   'act3-azak-bog-ignagduk-spirit',
   'act3-machinarium-blackjaw-fire-resistance',
   'act3-molten-vault-mektul-reforge-bench',
-  'act3-aggorat-sacrificial-heart-passive'
+  'act3-aggorat-sacrificial-heart-passive',
+
+  // Interlude must-do rewards across the three recruit segments.
+  'interlude-wolvenhold-oswin-passive',
+  'interlude-khari-skullmaw-life',
+  'interlude-khari-worm-scorpion-passive',
+  'interlude-qimah-boon-choice',
+  'interlude-kriar-lythara-spirit',
+  'interlude-howling-caves-yeti-passive',
+
+  // Act 4 must-do rewards/unlocks.
+  'act4-abandoned-prison-goddess-justice',
+  'act4-omniphobia-passive',
+  'act4-blind-beast',
+  'act4-great-white-one',
+  'act4-navali-rest',
+  'act4-trial-ancestors-complete'
 ] as const;
 
 const allowedObjectiveIds = new Set<string>(essentialObjectiveIds);
@@ -36,7 +52,6 @@ const skippedQuestNameFragments = [
   '잊힌 하사품',
   '사이렌 진주',
   '와카파누 섬',
-  '선조들의 심판',
   '유토피아',
   '오리아스 공성전',
   '에조미어인 모집',

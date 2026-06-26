@@ -27,7 +27,28 @@ export const act4Areas: AreaDefinition[] = [
   { id: 'act4-ziggurat-refuge', act: 4, nameKo: '지구라트 피난처', nameEn: 'Ziggurat Refuge', logNamesKo: ['지구라트 피난처', 'Ziggurat Refuge'], isTown: true, hasMapThumbnail: false, needsVerification: true, guideStepIds: ['act4-siege-of-oriath-refuge'] }
 ];
 
-export const act4Checklists: AreaChecklist[] = act4Areas.map((area) => objectives(area.id, []));
+const act4EssentialEntries: Record<string, Array<[string, string, 'required', string]>> = {
+  'act4-abandoned-prison': [
+    ['act4-abandoned-prison-goddess-justice', '버려진 감옥: 정의의 여신 보상으로 플라스크 생명력/마나 회복 30% 선택', 'required', 'Act 4 필수 영구 보상']
+  ],
+  'act4-journeys-end': [
+    ['act4-omniphobia-passive', '여정의 끝: Omniphobia 처치로 패시브 스킬 2포인트 챙기기', 'required', 'Act 4 필수 영구 보상']
+  ],
+  'act4-isle-of-kin': [
+    ['act4-blind-beast', '친족의 섬: 눈먼 짐승 처치 후 상위 빈 룬 보상 챙기기', 'required', 'Act 4 필수 보상']
+  ],
+  'act4-whakapanu-island': [
+    ['act4-great-white-one', '거대한 흰 존재: 방어/회피/에너지 보호막 계열 영구 보상 선택', 'required', 'Act 4 필수 영구 보상']
+  ],
+  'act4-halls-of-the-dead': [
+    ['act4-navali-rest', '망자의 전당: 나발리의 안식 보상으로 최대 마나 5% 챙기기', 'required', 'Act 4 필수 영구 보상']
+  ],
+  'act4-trial-of-the-ancestors': [
+    ['act4-trial-ancestors-complete', '선조들의 심판: 히네코라와 대화해 패시브 스킬 2포인트 챙기기', 'required', 'Act 4 필수 영구 보상']
+  ]
+};
+
+export const act4Checklists: AreaChecklist[] = act4Areas.map((area) => objectives(area.id, act4EssentialEntries[area.id] ?? []));
 
 function objective(areaId: string, id: string, labelKo: string, kind: 'required' | 'optional', notesKo: string): AreaChecklist {
   return objectives(areaId, [[id, labelKo, kind, notesKo]]);

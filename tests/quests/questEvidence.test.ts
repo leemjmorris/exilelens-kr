@@ -46,7 +46,7 @@ describe('quest evidence parsing and auto-completion', () => {
 
     expect(isObjectiveCompleted(next, 'act2-spires-of-deshar', 'act2-spires-garukhan-lightning-resistance')).toBe(true);
     expect(isObjectiveCompleted(next, 'act3-jiquanis-machinarium', 'act3-machinarium-blackjaw-fire-resistance')).toBe(true);
-    expect(next.autoObjectiveStates?.['act4-abandoned-prison']).toBeUndefined();
+    expect(isObjectiveCompleted(next, 'act4-abandoned-prison', 'act4-abandoned-prison-goddess-justice')).toBe(true);
   });
 
   it('keeps explicit manual incomplete choices above automatic reward evidence', () => {

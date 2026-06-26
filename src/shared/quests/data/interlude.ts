@@ -94,7 +94,26 @@ export const interludeAreas: AreaDefinition[] = [
   }
 ];
 
-export const interludeChecklists: AreaChecklist[] = interludeAreas.map((area) => objectives(area.id, []));
+const interludeEssentialEntries: Record<string, Array<[string, string, 'required', string]>> = {
+  'interlude-wolvenhold': [
+    ['interlude-wolvenhold-oswin-passive', '울븐홀드: Oswin 처치로 패시브 스킬 2포인트 챙기기', 'required', '막간 에조미어 구간 필수 영구 보상']
+  ],
+  'interlude-khari-crossing': [
+    ['interlude-khari-skullmaw-life', '카리 교차로: Skullmaw Stairway 보상으로 최대 생명력 5% 챙기기', 'required', '막간 마라케스 구간 필수 영구 보상'],
+    ['interlude-khari-worm-scorpion-passive', '카리 교차로: Worm and Scorpion 처치로 패시브 스킬 2포인트 챙기기', 'required', '막간 마라케스 구간 필수 영구 보상']
+  ],
+  'interlude-qimah': [
+    ['interlude-qimah-boon-choice', '키마: 선택 보상 챙기기', 'required', '막간 마라케스 구간 필수 선택 보상']
+  ],
+  'interlude-kriar-village': [
+    ['interlude-kriar-lythara-spirit', '크리아르 마을: Lythara 처치로 최대 정신력 40 챙기기', 'required', '막간 바알 구간 필수 영구 보상']
+  ],
+  'interlude-howling-caves': [
+    ['interlude-howling-caves-yeti-passive', '울부짖는 동굴: The Abominable Yeti 처치로 패시브 스킬 2포인트 챙기기', 'required', '막간 바알 구간 필수 영구 보상']
+  ]
+};
+
+export const interludeChecklists: AreaChecklist[] = interludeAreas.map((area) => objectives(area.id, interludeEssentialEntries[area.id] ?? []));
 
 function objective(areaId: string, id: string, labelKo: string, kind: 'required' | 'optional', notesKo: string): AreaChecklist {
   return objectives(areaId, [[id, labelKo, kind, notesKo]]);

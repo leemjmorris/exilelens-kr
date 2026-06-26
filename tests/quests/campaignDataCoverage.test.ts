@@ -19,7 +19,19 @@ const essentialObjectiveIds = [
   'act3-azak-bog-ignagduk-spirit',
   'act3-machinarium-blackjaw-fire-resistance',
   'act3-molten-vault-mektul-reforge-bench',
-  'act3-aggorat-sacrificial-heart-passive'
+  'act3-aggorat-sacrificial-heart-passive',
+  'interlude-wolvenhold-oswin-passive',
+  'interlude-khari-skullmaw-life',
+  'interlude-khari-worm-scorpion-passive',
+  'interlude-qimah-boon-choice',
+  'interlude-kriar-lythara-spirit',
+  'interlude-howling-caves-yeti-passive',
+  'act4-abandoned-prison-goddess-justice',
+  'act4-omniphobia-passive',
+  'act4-blind-beast',
+  'act4-great-white-one',
+  'act4-navali-rest',
+  'act4-trial-ancestors-complete'
 ];
 
 describe('campaign quest data coverage', () => {
@@ -46,7 +58,7 @@ describe('campaign quest data coverage', () => {
 
     expect(objectives.every((objective) => objective.kind === 'required')).toBe(true);
     expect(objectives.every((objective) => objective.needsVerification === true)).toBe(true);
-    for (const expected of ['냉기 저항 +10%', '번개 저항 +10%', '화염 저항 +10%', '정신력 +30', '패시브 스킬 2포인트', '분해 작업대', '제련 작업대']) {
+    for (const expected of ['냉기 저항 +10%', '번개 저항 +10%', '화염 저항 +10%', '정신력 +30', '정신력 40', '패시브 스킬 2포인트', '분해 작업대', '제련 작업대', '최대 생명력 5%', '최대 마나 5%', '상위 빈 룬']) {
       expect(labels).toContain(expected);
     }
   });
@@ -54,7 +66,7 @@ describe('campaign quest data coverage', () => {
   it('keeps previously noisy side/optional quest labels out of the HUD dataset', () => {
     const labels = areaChecklists.flatMap((checklist) => checklist.objectives.map((objective) => objective.labelKo)).join('\n');
 
-    for (const skipped of ['타바카이', '부족의 의술', '심연', '외딴 초소', '사이렌 진주', '와카파누 섬', '선조들의 심판', '오리아스 공성전', '에조미어인 모집']) {
+    for (const skipped of ['타바카이', '부족의 의술', '심연', '외딴 초소', '사이렌 진주', '와카파누 섬', '오리아스 공성전', '에조미어인 모집']) {
       expect(labels).not.toContain(skipped);
     }
   });
