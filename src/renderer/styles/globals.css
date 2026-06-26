@@ -133,7 +133,8 @@ button {
 
 .guide-current-card,
 .guide-all-card,
-.guide-settings {
+.guide-settings,
+.guide-character-card {
   border: 1px solid rgba(148, 163, 184, 0.16);
   border-radius: 13px;
   background: rgba(15, 23, 42, 0.34);
@@ -161,7 +162,8 @@ button {
 
 .guide-current-card h2,
 .guide-all-card h2,
-.guide-settings h2 {
+.guide-settings h2,
+.guide-character-card h2 {
   margin: 0 0 8px;
   color: rgba(226, 232, 240, 0.9);
   font-size: 13px;
@@ -232,6 +234,29 @@ button {
   gap: 7px;
 }
 
+.guide-character-card {
+  flex: 0 0 auto;
+  display: grid;
+  gap: 8px;
+}
+
+.guide-character-card select,
+.character-create-row input {
+  min-width: 0;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  border-radius: 9px;
+  background: rgba(15, 23, 42, 0.82);
+  color: #f8fafc;
+  padding: 7px 9px;
+}
+
+.character-create-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 7px;
+}
+
+.character-create-row button,
 .settings-row button,
 .section-title-row button {
   padding: 6px 9px;

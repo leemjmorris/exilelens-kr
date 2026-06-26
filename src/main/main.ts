@@ -10,8 +10,15 @@ import { areaDefinitions, areaChecklists, getDemoAreaDetection } from '../shared
 import { buildManualAreaOverride, normalizeManualAreaOverrideId } from '../shared/quests/areaSelection';
 import type { AreaDetectionState } from '../shared/quests/areaMatcher';
 import type { QuestProgress } from '../shared/quests/checklist';
-import { normalizeManualQuestProgress } from '../shared/quests/checklist';
+import { createEmptyQuestProgress } from '../shared/quests/checklist';
 import { applyQuestEvidenceToProgress, type QuestEvidence } from '../shared/quests/questEvidence';
+import {
+  createEmptyCharacterProgressState,
+  createOrSelectCharacter,
+  getActiveCharacterProgress,
+  updateActiveCharacterProgress,
+  type CharacterProgressState
+} from '../shared/characters/characterProgress';
 import { normalizeAppSettings, shouldWatchClientLog, type AppSettings } from '../shared/settings/appSettings';
 import { buildClientLogPathCandidates, type ClientLogDiscoveryResult } from '../shared/settings/clientLogDiscovery';
 import type { AppDiagnostics, AppMode } from '../shared/diagnostics/appDiagnostics';
@@ -19,8 +26,8 @@ import type { AppDiagnostics, AppMode } from '../shared/diagnostics/appDiagnosti
 let guideWindow: BrowserWindow | null = null;
 let tray: Tray | null = null;
 let areaWatcher: AreaWatcher | null = null;
-let questProgress: QuestProgress = { completedObjectiveIds: {}, manualObjectiveStates: {}, autoObjectiveStates: {} };
-let saveQuestProgress: ((progress: QuestProgress) => Promise<void>) | null = null;
+let characterProgressState: CharacterProgressState = createEmptyCharacterProgressState();
+let saveQuestProgress: ((progress: CharacterProgressState) => Promise<void>) | null = null;
 let appSettings: AppSettings = normalizeAppSettings(undefined);
 let hotkeyRegistrations: HotkeyRegistrationResult[] = [];
 let lastAreaState: AreaDetectionState = getDemoAreaDetection();
@@ -90,16 +97,27 @@ function sendEffectiveAreaDetected(): void {
 }
 
 async function handleQuestEvidence(evidence: QuestEvidence[]): Promise<void> {
-  const nextProgress = applyQuestEvidenceToProgress(questProgress, areaChecklists, evidence);
-  if (safeStringify(nextProgress) === safeStringify(questProgress)) return;
+  const activeProgress = getActiveProgressOrEmpty();
+  const nextProgress = applyQuestEvidenceToProgress(activeProgress, areaChecklists, evidence);
+  if (safeStringify(nextProgress) === safeStringify(activeProgress)) return;
 
-  questProgress = nextProgress;
-  await saveQuestProgress?.(questProgress);
+  characterProgressState = updateActiveCharacterProgress(characterProgressState, nextProgress);
+  await saveQuestProgress?.(characterProgressState);
   writeAppLog('quest progress auto-completed from Client.txt evidence', {
+    activeCharacterId: characterProgressState.activeCharacterId,
     evidenceCount: evidence.length,
-    completedObjectiveIds: questProgress.completedObjectiveIds
+    completedObjectiveIds: nextProgress.completedObjectiveIds
   });
-  sendToOverlayWindows('quest:progress', questProgress);
+  sendCharacterState();
+}
+
+function getActiveProgressOrEmpty(): QuestProgress {
+  return getActiveCharacterProgress(characterProgressState) ?? createEmptyQuestProgress();
+}
+
+function sendCharacterState(): void {
+  sendToOverlayWindows('character:state', characterProgressState);
+  sendToOverlayWindows('quest:progress', getActiveProgressOrEmpty());
 }
 
 function setWindowClickThrough(win: BrowserWindow | null, enabled: boolean): void {
@@ -250,7 +268,8 @@ function attachPanelWindowLifecycle(win: BrowserWindow, panel: OverlayPanel): vo
   win.on('resized', schedulePanelBoundsSave);
   win.webContents.once('did-finish-load', () => {
     writeAppLog('renderer finished load; sending initial state', { panel, appSettings, lastAreaState });
-    win.webContents.send('quest:progress', questProgress);
+    win.webContents.send('character:state', characterProgressState);
+    win.webContents.send('quest:progress', getActiveProgressOrEmpty());
     win.webContents.send('settings:changed', appSettings);
     win.webContents.send('quest:area-detected', lastAreaState);
   });
@@ -310,7 +329,7 @@ async function createApp(): Promise<void> {
   const progressStore = createQuestProgressStore(app.getPath('userData'));
   saveQuestProgress = progressStore.save;
   const settingsStore = createSettingsStore(app.getPath('userData'));
-  questProgress = await progressStore.load();
+  characterProgressState = await progressStore.load();
   const storedSettings = await settingsStore.load();
   const defaultClientLogPath = resolveDefaultClientLogPath();
   const shouldUseAutoDetectedClientLog = storedSettings.clientLogPath.length === 0 && defaultClientLogPath.length > 0;
@@ -320,8 +339,7 @@ async function createApp(): Promise<void> {
     demoMode: shouldUseAutoDetectedClientLog ? false : storedSettings.demoMode
   });
 
-  questProgress = normalizeManualQuestProgress(questProgress);
-  await progressStore.save(questProgress);
+  await progressStore.save(characterProgressState);
 
   const panelBounds = loadPanelBounds();
   guideWindow = createOverlayWindow({ panel: 'guide', bounds: getInitialPanelBounds(panelBounds) });
@@ -347,12 +365,19 @@ async function createApp(): Promise<void> {
     sendEffectiveAreaDetected();
     return appSettings;
   });
-  ipcMain.handle('quest:get-progress', () => questProgress);
+  ipcMain.handle('character:get-state', () => characterProgressState);
+  ipcMain.handle('character:create-or-select', async (_event, name: string) => {
+    characterProgressState = createOrSelectCharacter(characterProgressState, name);
+    await progressStore.save(characterProgressState);
+    sendCharacterState();
+    return characterProgressState;
+  });
+  ipcMain.handle('quest:get-progress', () => getActiveProgressOrEmpty());
   ipcMain.handle('quest:update-progress', async (_event, nextProgress: QuestProgress) => {
-    questProgress = normalizeManualQuestProgress(nextProgress);
-    await progressStore.save(questProgress);
-    sendToOverlayWindows('quest:progress', questProgress);
-    return questProgress;
+    characterProgressState = updateActiveCharacterProgress(characterProgressState, nextProgress);
+    await progressStore.save(characterProgressState);
+    sendCharacterState();
+    return getActiveProgressOrEmpty();
   });
 
   startAreaWatcher(appSettings);

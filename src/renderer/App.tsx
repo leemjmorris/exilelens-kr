@@ -13,6 +13,13 @@ import { areaDefinitions, areaChecklists, findChecklistForArea, getDemoAreaDetec
 import { buildManualAreaOverride, listAvailableAreasByAct } from '../shared/quests/areaSelection';
 import { DEFAULT_APP_SETTINGS, normalizeAppSettings, type AppSettings } from '../shared/settings/appSettings';
 import type { AppDiagnostics } from '../shared/diagnostics/appDiagnostics';
+import {
+  createEmptyCharacterProgressState,
+  createOrSelectCharacter as createOrSelectCharacterLocally,
+  getActiveCharacterProgress,
+  isCharacterOnboardingRequired,
+  type CharacterProgressState
+} from '../shared/characters/characterProgress';
 import './styles/globals.css';
 
 const LOCAL_PROGRESS_KEY = 'exilelens.questProgress';
@@ -20,6 +27,8 @@ const LOCAL_PROGRESS_KEY = 'exilelens.questProgress';
 function App(): React.ReactElement {
   const [currentArea, setCurrentArea] = useState<AreaDetectionState>(getDemoAreaDetection());
   const [progress, setProgress] = useState<QuestProgress>(() => loadLocalProgress());
+  const [characterState, setCharacterState] = useState<CharacterProgressState>(() => createEmptyCharacterProgressState());
+  const [newCharacterName, setNewCharacterName] = useState('');
   const [settings, setSettings] = useState<AppSettings>(DEFAULT_APP_SETTINGS);
   const [diagnostics, setDiagnostics] = useState<AppDiagnostics | null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -109,6 +118,14 @@ function App(): React.ReactElement {
       setProgress(nextProgress);
       saveLocalProgress(nextProgress);
     });
+    const unsubscribeCharacterState = window.exileLens?.onCharacterProgressState((nextState) => {
+      setCharacterState(nextState);
+      const activeProgress = getActiveCharacterProgress(nextState);
+      if (activeProgress != null) {
+        setProgress(activeProgress);
+        saveLocalProgress(activeProgress);
+      }
+    });
     const unsubscribeSettings = window.exileLens?.onSettingsChanged((nextSettings) => {
       const normalized = normalizeAppSettings(nextSettings);
       setSettings(normalized);
@@ -119,6 +136,15 @@ function App(): React.ReactElement {
     void window.exileLens?.getQuestProgress?.().then((nextProgress) => {
       setProgress(nextProgress);
       saveLocalProgress(nextProgress);
+    });
+
+    void window.exileLens?.getCharacterProgressState?.().then((nextState) => {
+      setCharacterState(nextState);
+      const activeProgress = getActiveCharacterProgress(nextState);
+      if (activeProgress != null) {
+        setProgress(activeProgress);
+        saveLocalProgress(activeProgress);
+      }
     });
 
     void window.exileLens?.getSettings?.().then((nextSettings) => {
@@ -133,6 +159,7 @@ function App(): React.ReactElement {
     return () => {
       unsubscribeArea?.();
       unsubscribeProgress?.();
+      unsubscribeCharacterState?.();
       unsubscribeSettings?.();
     };
   }, []);
@@ -142,6 +169,9 @@ function App(): React.ReactElement {
   const allEssentialRows = useMemo(() => buildEssentialRows(areaChecklists), []);
   const incompleteTotal = allEssentialRows.filter((row) => !isObjectiveCompleted(progress, row.areaId, row.objective.id)).length;
   const completedTotal = allEssentialRows.length - incompleteTotal;
+  const onboardingRequired = isCharacterOnboardingRequired(characterState);
+  const activeCharacter = characterState.activeCharacterId != null ? characterState.characters[characterState.activeCharacterId] : undefined;
+  const characterList = Object.values(characterState.characters);
 
   async function toggleObjective(areaId: string, objectiveId: string): Promise<void> {
     const nextProgress = toggleObjectiveCompletion(progress, areaId, objectiveId);
@@ -151,6 +181,27 @@ function App(): React.ReactElement {
     if (persisted != null) {
       setProgress(persisted);
       saveLocalProgress(persisted);
+    }
+  }
+
+  async function createOrSelectCharacter(name: string): Promise<void> {
+    try {
+      const optimistic = createOrSelectCharacterLocally(characterState, name);
+      setCharacterState(optimistic);
+      const optimisticProgress = getActiveCharacterProgress(optimistic) ?? createEmptyQuestProgress();
+      setProgress(optimisticProgress);
+      saveLocalProgress(optimisticProgress);
+      const persisted = await window.exileLens?.createOrSelectCharacter?.(name);
+      if (persisted != null) {
+        setCharacterState(persisted);
+        const activeProgress = getActiveCharacterProgress(persisted) ?? createEmptyQuestProgress();
+        setProgress(activeProgress);
+        saveLocalProgress(activeProgress);
+      }
+      setNewCharacterName('');
+      setStatus(`${name.trim()} 캐릭터 선택됨`);
+    } catch (error) {
+      setStatus(error instanceof Error ? error.message : '캐릭터 선택 실패');
     }
   }
 
@@ -217,7 +268,7 @@ function App(): React.ReactElement {
         <div>
           <span className="guide-eyebrow">액트 가이드</span>
           <h1>{currentArea.areaNameKo ?? '지역 감지 대기 중'}</h1>
-          <p>{formatActLabel(currentArea.act)} · {formatDetectionSource(currentArea.detectedFrom)}</p>
+          <p>{formatActLabel(currentArea.act)} · {formatDetectionSource(currentArea.detectedFrom)} · 캐릭터 {activeCharacter?.displayName ?? '미선택'}</p>
         </div>
         <div className="guide-counts" data-no-hud-drag="true">
           <strong>{incompleteTotal}</strong>
@@ -226,34 +277,59 @@ function App(): React.ReactElement {
         </div>
       </header>
 
-      <section className="guide-current-card">
+      <section className="guide-character-card" data-no-hud-drag="true">
         <div className="section-title-row">
-          <h2>현재 지역 필수 보상</h2>
+          <h2>{onboardingRequired ? '캐릭터를 먼저 선택하세요' : `현재 캐릭터: ${activeCharacter?.displayName ?? '미선택'}`}</h2>
           <button type="button" onClick={() => setSettingsOpen((open) => !open)}>{settingsOpen ? '설정 닫기' : '설정'}</button>
         </div>
-        {currentObjectives.length > 0 ? (
-          <ObjectiveList areaId={currentArea.areaId ?? ''} objectives={currentObjectives} progress={progress} onToggle={toggleObjective} />
-        ) : (
-          <p className="empty-note">이 지역에는 표시할 필수 보상/해금 체크가 없습니다.</p>
-        )}
+        {characterList.length > 0 ? (
+          <select value={characterState.activeCharacterId ?? ''} onChange={(event) => void createOrSelectCharacter(event.target.value)}>
+            {characterList.map((character) => <option key={character.id} value={character.id}>{character.displayName}</option>)}
+          </select>
+        ) : null}
+        <form className="character-create-row" onSubmit={(event) => { event.preventDefault(); void createOrSelectCharacter(newCharacterName); }}>
+          <input value={newCharacterName} onChange={(event) => setNewCharacterName(event.target.value)} placeholder="방금 만든 캐릭터 이름 입력" />
+          <button type="submit">새 캐릭터 추가</button>
+        </form>
+        {status ? <p className="status-line">{status}</p> : null}
       </section>
 
-      <section className="guide-all-card">
-        <h2>전체 필수 체크리스트</h2>
-        <div className="guide-objective-list">
-          {allEssentialRows.map((row) => (
-            <button
-              key={`${row.areaId}:${row.objective.id}`}
-              type="button"
-              className={`objective ${isObjectiveCompleted(progress, row.areaId, row.objective.id) ? 'completed' : ''}`}
-              onClick={() => void toggleObjective(row.areaId, row.objective.id)}
-            >
-              <span className="objective-area">{formatActLabel(row.act)} · {row.areaNameKo}</span>
-              <span>{row.objective.labelKo}</span>
-            </button>
-          ))}
-        </div>
-      </section>
+      {onboardingRequired ? (
+        <section className="guide-current-card onboarding-card" data-no-hud-drag="true">
+          <h2>캐릭터 진행도를 분리해 저장합니다</h2>
+          <p className="empty-note">목록에 없어도 괜찮습니다. 캐릭터 이름을 직접 입력하면 즉시 새 프로필이 만들어지고 이 캐릭터 기준으로 체크리스트가 저장됩니다.</p>
+        </section>
+      ) : (
+        <>
+          <section className="guide-current-card">
+            <div className="section-title-row">
+              <h2>현재 지역 필수 보상</h2>
+            </div>
+            {currentObjectives.length > 0 ? (
+              <ObjectiveList areaId={currentArea.areaId ?? ''} objectives={currentObjectives} progress={progress} onToggle={toggleObjective} />
+            ) : (
+              <p className="empty-note">이 지역에는 표시할 필수 보상/해금 체크가 없습니다.</p>
+            )}
+          </section>
+
+          <section className="guide-all-card">
+            <h2>전체 필수 체크리스트</h2>
+            <div className="guide-objective-list">
+              {allEssentialRows.map((row) => (
+                <button
+                  key={`${row.areaId}:${row.objective.id}`}
+                  type="button"
+                  className={`objective ${isObjectiveCompleted(progress, row.areaId, row.objective.id) ? 'completed' : ''}`}
+                  onClick={() => void toggleObjective(row.areaId, row.objective.id)}
+                >
+                  <span className="objective-area">{formatActLabel(row.act)} · {row.areaNameKo}</span>
+                  <span>{row.objective.labelKo}</span>
+                </button>
+              ))}
+            </div>
+          </section>
+        </>
+      )}
 
       {settingsOpen ? (
         <section className="guide-settings" data-no-hud-drag="true">

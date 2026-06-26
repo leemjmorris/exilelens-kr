@@ -4,6 +4,7 @@ import type { QuestProgress } from '../shared/quests/checklist';
 import type { AppSettings } from '../shared/settings/appSettings';
 import type { ClientLogDiscoveryResult } from '../shared/settings/clientLogDiscovery';
 import type { AppDiagnostics, HotkeyDiagnostic } from '../shared/diagnostics/appDiagnostics';
+import type { CharacterProgressState } from '../shared/characters/characterProgress';
 
 contextBridge.exposeInMainWorld('exileLens', {
   showOverlay: () => ipcRenderer.invoke('overlay:show') as Promise<void>,
@@ -21,6 +22,11 @@ contextBridge.exposeInMainWorld('exileLens', {
     ipcRenderer.on('quest:progress', listener);
     return () => ipcRenderer.off('quest:progress', listener);
   },
+  onCharacterProgressState: (callback: (state: CharacterProgressState) => void) => {
+    const listener = (_event: Electron.IpcRendererEvent, state: CharacterProgressState) => callback(state);
+    ipcRenderer.on('character:state', listener);
+    return () => ipcRenderer.off('character:state', listener);
+  },
   onSettingsChanged: (callback: (settings: AppSettings) => void) => {
     const listener = (_event: Electron.IpcRendererEvent, settings: AppSettings) => callback(settings);
     ipcRenderer.on('settings:changed', listener);
@@ -28,6 +34,8 @@ contextBridge.exposeInMainWorld('exileLens', {
   },
   getQuestProgress: () => ipcRenderer.invoke('quest:get-progress') as Promise<QuestProgress>,
   updateQuestProgress: (progress: QuestProgress) => ipcRenderer.invoke('quest:update-progress', progress) as Promise<QuestProgress>,
+  getCharacterProgressState: () => ipcRenderer.invoke('character:get-state') as Promise<CharacterProgressState>,
+  createOrSelectCharacter: (name: string) => ipcRenderer.invoke('character:create-or-select', name) as Promise<CharacterProgressState>,
   getDiagnostics: () => ipcRenderer.invoke('diagnostics:get') as Promise<AppDiagnostics>,
   logDiagnostic: (message: string, details?: unknown) => ipcRenderer.invoke('diagnostics:log', message, details) as Promise<void>,
   retryHotkeys: () => ipcRenderer.invoke('hotkeys:retry') as Promise<HotkeyDiagnostic[]>,
